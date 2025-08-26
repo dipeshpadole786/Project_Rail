@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import L from "leaflet";
 import Ors from "openrouteservice-js";
-import "./Pnr.css"
+import "./Pnr.css";
 
 // Fix Leaflet marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -25,6 +25,7 @@ export default function PnrStatus() {
     const [locationName, setLocationName] = useState("");
     const [currentTime, setCurrentTime] = useState(new Date());
     const [countdown, setCountdown] = useState("");
+    const [loading, setLoading] = useState(false);
 
     // ⏰ Update current time every second
     useEffect(() => {
@@ -41,7 +42,8 @@ export default function PnrStatus() {
             to: "Mumbai CST, Maharashtra",
             fromCoords: [21.1501, 79.0882], // Nagpur Junction Lat/Lng
             departureTime: "22:15", // Train departure time (HH:mm format)
-            date: "2025-08-21", // Example train date
+            date: "2025-08-26", // Example train date
+            delayMinutes: 180, // ⏳ Train delayed 3 hours
         },
     };
 
@@ -51,10 +53,14 @@ export default function PnrStatus() {
             return;
         }
 
+        setLoading(true);
         const trainData = dummyData[pnr] || null;
         setData(trainData);
 
-        if (!trainData) return;
+        if (!trainData) {
+            setLoading(false);
+            return;
+        }
 
         // Get user location
         if (navigator.geolocation) {
@@ -77,7 +83,8 @@ export default function PnrStatus() {
                     // Call OpenRouteService API
                     try {
                         const Directions = new Ors.Directions({
-                            api_key: "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjU0NDY3MjA3MjY4MDQ3MjA5ZDJmOTM2MjllYjZhZWM5IiwiaCI6Im11cm11cjY0In0=", // 🔑 put your ORS key
+                            api_key:
+                                "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjU0NDY3MjA3MjY4MDQ3MjA5ZDJmOTM2MjllYjZhZWM5IiwiaCI6Im11cm11cjY0In0=",
                         });
 
                         const response = await Directions.calculate({
@@ -101,118 +108,255 @@ export default function PnrStatus() {
                             response.features[0].properties.segments[0].distance / 1000;
                         const durationMin =
                             response.features[0].properties.segments[0].duration / 60;
+
+                        // ✅ Calculate Leave Time
+                        const scheduledDeparture = new Date(
+                            `${trainData.date}T${trainData.departureTime}:00`
+                        );
+
+                        const expectedDeparture = new Date(
+                            scheduledDeparture.getTime() + (trainData.delayMinutes || 0) * 60000
+                        );
+
+                        // Reach 15 minutes early
+                        const reachBy = new Date(expectedDeparture.getTime() - 15 * 60000);
+
+                        // Subtract travel time (duration in minutes)
+                        const leaveBy = new Date(
+                            reachBy.getTime() - durationMin * 60000
+                        );
+
                         setTravelInfo({
                             distance: distKm.toFixed(2),
                             duration: durationMin.toFixed(1),
+                            leaveBy: leaveBy.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            }),
+                            reachBy: reachBy.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            }),
                         });
                     } catch (err) {
                         console.error("ORS Error:", err);
                     }
 
-                    // Calculate countdown until train departure
+                    // ✅ Countdown
                     if (trainData?.departureTime && trainData?.date) {
-                        const departureDateTime = new Date(
+                        const scheduledDeparture = new Date(
                             `${trainData.date}T${trainData.departureTime}:00`
                         );
+
+                        const expectedDeparture = new Date(
+                            scheduledDeparture.getTime() + (trainData.delayMinutes || 0) * 60000
+                        );
+
                         const interval = setInterval(() => {
                             const now = new Date();
-                            const diff = departureDateTime - now;
+                            const diff = expectedDeparture - now;
 
                             if (diff <= 0) {
-                                setCountdown("🚉 Train already departed");
+                                setCountdown("🚂 Train already departed");
                                 clearInterval(interval);
                             } else {
                                 const hours = Math.floor(diff / (1000 * 60 * 60));
-                                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                const mins = Math.floor(
+                                    (diff % (1000 * 60 * 60)) / (1000 * 60)
+                                );
                                 const secs = Math.floor((diff % (1000 * 60)) / 1000);
-                                setCountdown(`${hours}h ${mins}m ${secs}s left`);
+                                setCountdown(`${hours}h ${mins}m ${secs}s`);
                             }
                         }, 1000);
                     }
+
+                    setLoading(false);
                 },
                 (err) => {
                     console.error(err);
                     alert("Unable to fetch your location");
+                    setLoading(false);
                 }
             );
         }
     };
 
     return (
-        <div className="flex flex-col items-center p-6">
-            <h1 className="text-2xl font-bold mb-4">🚉 PNR Status Checker</h1>
+        <div className="pnr-container">
+            {/* Header Section */}
+            <div className="pnr-header">
+                <h1 className="pnr-title">🚉 PNR Status Checker</h1>
+                <p className="pnr-subtitle">Track your train journey in real-time</p>
+            </div>
 
-            <input
-                type="text"
-                placeholder="Enter PNR Number"
-                value={pnr}
-                onChange={(e) => setPnr(e.target.value)}
-                className="border px-4 py-2 rounded w-64 mb-3"
-            />
+            {/* Search Section */}
+            <div className="pnr-search">
+                <div className="search-form">
+                    <input
+                        type="text"
+                        placeholder="Enter your PNR number"
+                        value={pnr}
+                        onChange={(e) => setPnr(e.target.value)}
+                        className="pnr-input"
+                        maxLength="10"
+                    />
+                    <button
+                        onClick={handleCheck}
+                        className="check-button"
+                        disabled={loading}
+                    >
+                        {loading ? <span className="loading"></span> : "Check Status"}
+                    </button>
+                </div>
+            </div>
 
-            <button
-                onClick={handleCheck}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-                Check Status
-            </button>
+            {/* Current Time Display */}
+            <div className="current-time">
+                <div className="time-label">⏰ Current Time</div>
+                <div className="time-value">{currentTime.toLocaleString()}</div>
+            </div>
 
-            {/* Show current time */}
-            <p className="mt-3 text-gray-600">
-                ⏰ Current Time: <strong>{currentTime.toLocaleString()}</strong>
-            </p>
-
+            {/* Train Details */}
             {data && (
-                <div className="mt-6 p-4 border rounded shadow w-full max-w-lg bg-gray-50">
-                    <p>
-                        <strong>Train No:</strong> {data.trainNo}
-                    </p>
-                    <p>
-                        <strong>Train Name:</strong> {data.trainName}
-                    </p>
-                    <p>
-                        <strong>Date:</strong> {data.date}
-                    </p>
-                    <p>
-                        <strong>Departure Time:</strong> {data.departureTime}
-                    </p>
-                    <p>
-                        <strong>From (Your Location):</strong>{" "}
-                        {locationName || "Fetching..."}
-                    </p>
-                    <p>
-                        <strong>To (Train Start):</strong> {data.from}
-                    </p>
+                <div className="train-details">
+                    {/* Train Header */}
+                    <div className="train-header">
+                        <div className="train-icon">🚂</div>
+                        <div className="train-title">
+                            <div className="train-number">Train No: {data.trainNo}</div>
+                            <div className="train-name">{data.trainName}</div>
+                        </div>
+                    </div>
 
+                    {/* Train Info Grid */}
+                    <div className="train-info-grid">
+                        <div className="info-item">
+                            <div className="info-label">📅 Travel Date</div>
+                            <div className="info-value">{data.date}</div>
+                        </div>
+
+                        <div className="info-item">
+                            <div className="info-label">🕐 Scheduled Departure</div>
+                            <div className="info-value">{data.departureTime}</div>
+                        </div>
+
+                        <div className="info-item">
+                            <div className="info-label">⏳ Delay</div>
+                            <div className="info-value">
+                                {data.delayMinutes > 0
+                                    ? `${data.delayMinutes / 60} hours`
+                                    : "On Time"}
+                            </div>
+                        </div>
+
+                        <div className="info-item">
+                            <div className="info-label">🟢 Expected Departure</div>
+                            <div className="info-value">
+                                {new Date(
+                                    new Date(`${data.date}T${data.departureTime}:00`).getTime() +
+                                    (data.delayMinutes || 0) * 60000
+                                ).toLocaleString()}
+                            </div>
+                        </div>
+
+                        <div className="info-item">
+                            <div className="info-label">📍 Your Location</div>
+                            <div className="info-value">
+                                {locationName || "Fetching location..."}
+                            </div>
+                        </div>
+
+                        <div className="info-item">
+                            <div className="info-label">🚉 Train Station</div>
+                            <div className="info-value">{data.from}</div>
+                        </div>
+                    </div>
+
+                    {/* Travel Information */}
                     {travelInfo && (
-                        <p className="mt-2">
-                            📏 Distance: <strong>{travelInfo.distance} km</strong> | ⏱️ Time:{" "}
-                            <strong>{travelInfo.duration} min</strong>
-                        </p>
+                        <div className="travel-info">
+                            <div className="travel-info-content">
+                                <div className="travel-metric">
+                                    <div className="travel-metric-value">
+                                        {travelInfo.distance} km
+                                    </div>
+                                    <div className="travel-metric-label">Distance</div>
+                                </div>
+                                <div className="travel-metric">
+                                    <div className="travel-metric-value">
+                                        {travelInfo.duration} min
+                                    </div>
+                                    <div className="travel-metric-label">Travel Time</div>
+                                </div>
+                            </div>
+
+                            {/* ✅ Leave Time Box */}
+                            <div className="leave-time-box">
+                                <div className="leave-time-label">🕒 Leave By</div>
+                                <div className="leave-time-value">{travelInfo.leaveBy}</div>
+                                <div className="leave-time-note">
+                                    (to reach station by {travelInfo.reachBy}, 15 min before train
+                                    departs)
+                                </div>
+                            </div>
+                        </div>
                     )}
 
+                    {/* Countdown Timer */}
                     {countdown && (
-                        <p className="mt-2 text-red-600">
-                            ⏳ Time left for Train Departure: <strong>{countdown}</strong>
-                        </p>
+                        <div className="countdown">
+                            <div className="countdown-label">
+                                ⏳ Time left for Train Departure
+                            </div>
+                            <div className="countdown-value">{countdown}</div>
+                        </div>
                     )}
 
+                    {/* Map Container */}
                     {userLocation && (
-                        <MapContainer
-                            center={userLocation}
-                            zoom={12}
-                            style={{ height: "400px", width: "100%", marginTop: "1rem" }}
-                        >
-                            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                            <Marker position={userLocation}>
-                                <Popup>📍 Your Location</Popup>
-                            </Marker>
-                            <Marker position={data.fromCoords}>
-                                <Popup>🚉 {data.from}</Popup>
-                            </Marker>
-                            {route && <Polyline positions={route} color="blue" />}
-                        </MapContainer>
+                        <div className="map-container">
+                            <MapContainer
+                                center={userLocation}
+                                zoom={12}
+                                style={{ height: "400px", width: "100%" }}
+                            >
+                                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                <Marker position={userLocation}>
+                                    <Popup>📍 Your Current Location</Popup>
+                                </Marker>
+                                <Marker position={data.fromCoords}>
+                                    <Popup>🚉 {data.from}</Popup>
+                                </Marker>
+                                {route && (
+                                    <Polyline positions={route} color="#3b82f6" weight={4} />
+                                )}
+                            </MapContainer>
+                        </div>
                     )}
+                </div>
+            )}
+
+            {/* No Data Found */}
+            {pnr && !data && !loading && (
+                <div className="train-details error">
+                    <div style={{ textAlign: "center", padding: "2rem" }}>
+                        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>❌</div>
+                        <h3 style={{ color: "#ef4444", marginBottom: "0.5rem" }}>
+                            PNR Not Found
+                        </h3>
+                        <p style={{ color: "#6b7280" }}>
+                            Please check your PNR number and try again.
+                        </p>
+                        <p
+                            style={{
+                                color: "#6b7280",
+                                fontSize: "0.9rem",
+                                marginTop: "1rem",
+                            }}
+                        >
+                            Try: 1234567890 (Demo PNR)
+                        </p>
+                    </div>
                 </div>
             )}
         </div>
