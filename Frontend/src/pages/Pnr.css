@@ -1,0 +1,166 @@
+/* Global styles */
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #eaf3ff, #ffffff);
+    margin: 0;
+    padding: 0;
+}
+
+/* Container */
+.pnr-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    min-height: 100vh;
+}
+
+/* Title */
+.pnr-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1d4ed8;
+    margin-bottom: 1.5rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Input and button container */
+.pnr-input-group {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Input field */
+.pnr-input {
+    border: 1px solid #d1d5db;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    width: 250px;
+    outline: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: border 0.2s ease-in-out;
+}
+
+.pnr-input:focus {
+    border-color: #2563eb;
+}
+
+/* Button */
+.pnr-button {
+    background: #2563eb;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.pnr-button:hover {
+    background: #1e40af;
+    transform: scale(1.05);
+}
+
+/* Card */
+.pnr-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 1rem;
+}
+
+.pnr-card h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Grid for details */
+.pnr-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    color: #374151;
+}
+
+.pnr-details p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.pnr-details strong {
+    color: #111827;
+}
+
+/* Map container */
+.pnr-map {
+    margin-top: 1rem;
+    height: 300px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #d1d5db;
+}
+
+/* Title */
+.pnr-title {
+    font-size: 1.5rem;
+    /* Tailwind: text-2xl */
+    font-weight: bold;
+    /* Tailwind: font-bold */
+    margin-bottom: 1rem;
+    /* Tailwind: mb-4 */
+    color: #1f2937;
+    /* Slightly dark gray */
+}
+
+/* Input */
+.pnr-input {
+    border: 1px solid #d1d5db;
+    /* Tailwind: border */
+    padding: 0.5rem 1rem;
+    /* Tailwind: px-4 py-2 */
+    border-radius: 6px;
+    /* Tailwind: rounded */
+    width: 16rem;
+    /* Tailwind: w-64 */
+    margin-bottom: 0.75rem;
+    /* Tailwind: mb-3 */
+    outline: none;
+    transition: border 0.2s ease-in-out;
+}
+
+.pnr-input:focus {
+    border-color: #2563eb;
+    /* Blue focus */
+    box-shadow: 0 0 4px rgba(37, 99, 235, 0.4);
+}
+
+/* Button */
+.pnr-button {
+    background-color: #2563eb;
+    /* Tailwind: bg-blue-600 */
+    color: white;
+    padding: 0.5rem 1rem;
+    /* Tailwind: px-4 py-2 */
+    border-radius: 6px;
+    /* Tailwind: rounded */
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    font-weight: 500;
+}
+
+.pnr-button:hover {
+    background-color: #1d4ed8;
+    /* Tailwind: hover:bg-blue-700 */
+}
