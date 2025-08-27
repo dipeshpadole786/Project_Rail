@@ -2,8 +2,18 @@ import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
 
+import mongoose from "mongoose";
 const app = express();
 const PORT = 5000;
+
+const mongoURI = "mongodb://127.0.0.1:27017/Rail";
+
+mongoose.connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+    .then(() => console.log("MongoDB connected successfully"))
+    .catch((err) => console.error("MongoDB connection error:", err));
 
 const ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjU0NDY3MjA3MjY4MDQ3MjA5ZDJmOTM2MjllYjZhZWM5IiwiaCI6Im11cm11cjY0In0=";
 

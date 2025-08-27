@@ -41,9 +41,9 @@ export default function PnrStatus() {
             from: "Nagpur Junction, Maharashtra",
             to: "Mumbai CST, Maharashtra",
             fromCoords: [21.1501, 79.0882], // Nagpur Junction Lat/Lng
-            departureTime: "22:15", // Train departure time (HH:mm format)
+            departureTime: "09:15", // Train departure time (HH:mm format)
             date: "2025-08-26", // Example train date
-            delayMinutes: 180, // ⏳ Train delayed 3 hours
+            delayMinutes: 30, // ⏳ Train delayed 3 hours
         },
     };
 
@@ -295,12 +295,57 @@ export default function PnrStatus() {
                                 <div className="leave-time-label">🕒 Leave By</div>
                                 <div className="leave-time-value">{travelInfo.leaveBy}</div>
                                 <div className="leave-time-note">
-                                    (to reach station by {travelInfo.reachBy}, 15 min before train
-                                    departs)
+                                    (to reach station by {travelInfo.reachBy}, 15 min before train departs)
                                 </div>
+
+                                {/* 🚖 Book Cab */}
+                                <button
+                                    className="book-cab-btn"
+                                    onClick={() => {
+                                        if (!userLocation || !data?.fromCoords) return;
+                                        const uberUrl = `https://m.uber.com/ul/?action=setPickup` +
+                                            `&pickup[latitude]=${userLocation[0]}&pickup[longitude]=${userLocation[1]}` +
+                                            `&dropoff[latitude]=${data.fromCoords[0]}&dropoff[longitude]=${data.fromCoords[1]}` +
+                                            `&dropoff[nickname]=${encodeURIComponent(data.from)}`;
+                                        window.open(uberUrl, "_blank");
+                                    }}
+                                >
+                                    🚖 Book Cab
+                                </button>
+
+                                {/* 🚇 See Metro */}
+                                <button
+                                    className="metro-btn"
+                                    onClick={() => {
+                                        if (!data?.from || !data?.to) return;
+                                        const metroUrl = `comgooglemaps://?saddr=${encodeURIComponent(
+                                            data.from
+                                        )}&daddr=${encodeURIComponent(data.to)}&directionsmode=transit`;
+                                        window.location.href = metroUrl;
+                                    }}
+                                >
+                                    🚇 See Metro
+                                </button>
+
+                                {/* 🚌 See Buses */}
+                                <button
+                                    className="bus-btn"
+                                    onClick={() => {
+                                        if (!data?.from || !data?.to) return;
+                                        const busUrl = `comgooglemaps://?saddr=${encodeURIComponent(
+                                            data.from
+                                        )}&daddr=${encodeURIComponent(data.to)}&directionsmode=transit`;
+                                        window.location.href = busUrl;
+                                    }}
+                                >
+                                    🚌 See Buses
+                                </button>
                             </div>
                         </div>
                     )}
+
+
+
 
                     {/* Countdown Timer */}
                     {countdown && (

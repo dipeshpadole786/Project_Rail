@@ -1,930 +1,468 @@
-/* Railway PNR Status Checker - Beautiful CSS */
+/* Railway PNR Status Checker - Professional CSS */
 
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* CSS Variables for Railway Theme */
 :root {
-  --railway-primary: #1e40af;
-  --railway-secondary: #3b82f6;
-  --railway-accent: #f59e0b;
-  --railway-success: #10b981;
-  --railway-danger: #ef4444;
-  --railway-warning: #f97316;
-  --railway-dark: #1f2937;
-  --railway-light: #f8fafc;
-  --railway-gray: #6b7280;
-  --railway-border: #e5e7eb;
-  --railway-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --railway-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --gradient-primary: linear-gradient(135deg, #1e40af, #3b82f6);
-  --gradient-accent: linear-gradient(135deg, #f59e0b, #f97316);
+    --primary-color: #1e40af;
+    --secondary-color: #3b82f6;
+    --accent-color: #f59e0b;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f97316;
+    --dark-color: #1f2937;
+    --light-color: #f8fafc;
+    --gray-color: #6b7280;
+    --border-color: #e5e7eb;
+    --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
 /* Global Styles */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%);
-  min-height: 100vh;
-  color: var(--railway-dark);
-  line-height: 1.6;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%);
+    min-height: 100vh;
+    color: var(--dark-color);
+    line-height: 1.6;
 }
 
 /* Main Container */
 .pnr-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  min-height: 100vh;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
 }
 
 /* Header Section */
 .pnr-header {
-  text-align: center;
-  margin-bottom: 3rem;
-  position: relative;
-}
-
-.pnr-header::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100px;
-  height: 4px;
-  background: var(--gradient-primary);
-  border-radius: 2px;
+    text-align: center;
+    margin-bottom: 3rem;
 }
 
 .pnr-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
 }
 
 .pnr-subtitle {
-  color: var(--railway-gray);
-  font-size: 1.1rem;
-  font-weight: 400;
+    color: var(--gray-color);
+    font-size: 1.1rem;
+    font-weight: 400;
 }
 
 /* Search Section */
 .pnr-search {
-  background: white;
-  padding: 2rem;
-  border-radius: 20px;
-  box-shadow: var(--railway-shadow-lg);
-  margin-bottom: 2rem;
-  border: 1px solid var(--railway-border);
-  position: relative;
-  overflow: hidden;
-}
-
-.pnr-search::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--gradient-primary);
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px var(--shadow-color);
+    margin-bottom: 2rem;
 }
 
 .search-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
 }
 
 .pnr-input {
-  width: 100%;
-  max-width: 400px;
-  padding: 1rem 1.5rem;
-  border: 2px solid var(--railway-border);
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  background: white;
-  color: var(--railway-dark);
+    width: 100%;
+    max-width: 400px;
+    padding: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
 }
 
 .pnr-input:focus {
-  outline: none;
-  border-color: var(--railway-secondary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  transform: translateY(-2px);
-}
-
-.pnr-input::placeholder {
-  color: var(--railway-gray);
-  font-weight: 400;
+    outline: none;
+    border-color: var(--secondary-color);
 }
 
 .check-button {
-  background: var(--gradient-primary);
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: var(--railway-shadow);
-  position: relative;
-  overflow: hidden;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
 }
 
 .check-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
-}
-
-.check-button:active {
-  transform: translateY(-1px);
-}
-
-.check-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.check-button:hover::before {
-  left: 100%;
+    background: var(--secondary-color);
 }
 
 /* Current Time Display */
 .current-time {
-  text-align: center;
-  background: linear-gradient(135deg, #f0f9ff, white);
-  padding: 1rem;
-  border-radius: 12px;
-  border: 1px solid var(--railway-border);
-  margin-bottom: 2rem;
-  box-shadow: var(--railway-shadow);
+    text-align: center;
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .current-time .time-label {
-  color: var(--railway-gray);
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
+    color: var(--gray-color);
+    font-size: 0.9rem;
 }
 
 .current-time .time-value {
-  color: var(--railway-primary);
-  font-size: 1.2rem;
-  font-weight: 600;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    font-weight: 600;
 }
 
 /* Train Details Card */
 .train-details {
-  background: white;
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: var(--railway-shadow-lg);
-  border: 1px solid var(--railway-border);
-  position: relative;
-  overflow: hidden;
-}
-
-.train-details::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--gradient-accent);
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 8px var(--shadow-color);
+    margin-bottom: 2rem;
 }
 
 .train-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid var(--railway-border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
 
 .train-icon {
-  width: 60px;
-  height: 60px;
-  background: var(--gradient-primary);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: white;
-  box-shadow: var(--railway-shadow);
+    width: 60px;
+    height: 60px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
 }
 
 .train-title {
-  flex: 1;
+    flex: 1;
 }
 
 .train-number {
-  font-size: 1.1rem;
-  color: var(--railway-gray);
-  margin-bottom: 0.25rem;
+    font-size: 1rem;
+    color: var(--gray-color);
 }
 
 .train-name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--railway-dark);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark-color);
 }
 
 /* Train Info Grid */
 .train-info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
 
 .info-item {
-  background: linear-gradient(135deg, #f8fafc, white);
-  padding: 1.5rem;
-  border-radius: 12px;
-  border: 1px solid var(--railway-border);
-  transition: all 0.3s ease;
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s ease;
 }
 
 .info-item:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--railway-shadow);
+    transform: translateY(-2px);
 }
 
 .info-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--railway-gray);
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
+    color: var(--gray-color);
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
 .info-value {
-  color: var(--railway-dark);
-  font-size: 1.1rem;
-  font-weight: 600;
+    color: var(--dark-color);
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
 /* Travel Info */
 .travel-info {
-  background: linear-gradient(135deg, #ecfdf5, white);
-  border: 2px solid var(--railway-success);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+    background: #ecfdf5;
+    border: 2px solid var(--success-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .travel-info-content {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  text-align: center;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
 }
 
 .travel-metric {
-  flex: 1;
+    flex: 1;
 }
 
 .travel-metric-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--railway-success);
-  margin-bottom: 0.25rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--success-color);
 }
 
 .travel-metric-label {
-  color: var(--railway-gray);
-  font-size: 0.9rem;
+    color: var(--gray-color);
+    font-size: 0.9rem;
 }
 
 /* Countdown Timer */
 .countdown {
-  background: linear-gradient(135deg, #fef2f2, white);
-  border: 2px solid var(--railway-danger);
-  border-radius: 12px;
-  padding: 1.5rem;
-  text-align: center;
-  margin-bottom: 2rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.countdown::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.1), transparent);
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
+    background: #fef2f2;
+    border: 2px solid var(--danger-color);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    margin-bottom: 2rem;
 }
 
 .countdown-label {
-  color: var(--railway-gray);
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
+    color: var(--gray-color);
+    font-size: 0.9rem;
 }
 
 .countdown-value {
-  color: var(--railway-danger);
-  font-size: 1.5rem;
-  font-weight: 700;
+    color: var(--danger-color);
+    font-size: 1.5rem;
+    font-weight: 700;
 }
 
 /* Map Container */
 .map-container {
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: var(--railway-shadow-lg);
-  border: 2px solid var(--railway-border);
-  margin-top: 2rem;
-}
-
-.map-container .leaflet-container {
-  height: 400px !important;
-  border-radius: 14px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px var(--shadow-color);
+    margin-top: 2rem;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .pnr-container {
-    padding: 1rem;
-  }
-  
-  .pnr-title {
-    font-size: 2rem;
-  }
-  
-  .pnr-search {
-    padding: 1.5rem;
-    border-radius: 16px;
-  }
-  
-  .train-details {
-    padding: 1.5rem;
-    border-radius: 16px;
-  }
-  
-  .train-info-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .travel-info-content {
-    flex-direction: column;
-    gap: 1rem;
-  }
+    .pnr-container {
+        padding: 1rem;
+    }
+
+    .pnr-title {
+        font-size: 2rem;
+    }
+
+    .pnr-search {
+        padding: 1.5rem;
+    }
+
+    .train-details {
+        padding: 1.5rem;
+    }
+
+    .train-info-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 480px) {
-  .pnr-title {
-    font-size: 1.75rem;
-  }
-  
-  .search-form {
-    gap: 1rem;
-  }
-  
-  .pnr-input {
-    font-size: 1rem;
-  }
-  
-  .check-button {
-    font-size: 1rem;
-    padding: 0.875rem 1.5rem;
-  }
+    .pnr-title {
+        font-size: 1.75rem;
+    }
+
+    .search-form {
+        gap: 1rem;
+    }
+
+    .pnr-input {
+        font-size: 1rem;
+    }
+
+    .check-button {
+        font-size: 1rem;
+        padding: 0.875rem 1.5rem;
+    }
 }
 
 /* Loading Animation */
 .loading {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: white;
-  animation: spin 1s ease-in-out infinite;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Success/Error States */
 .success {
-  background: linear-gradient(135deg, #ecfdf5, white);
-  border-color: var(--railway-success);
+    background: #ecfdf5;
+    border-color: var(--success-color);
 }
 
 .error {
-  background: linear-gradient(135deg, #fef2f2, white);
-  border-color: var(--railway-danger);
+    background: #fef2f2;
+    border-color: var(--danger-color);
 }
 
 .warning {
-  background: linear-gradient(135deg, #fffbeb, white);
-  border-color: var(--railway-warning);
+    background: #fffbeb;
+    border-color: var(--warning-color);
 }
- /* Header & Footer CSS */
-        .railway-app {
-          min-height: 100vh;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 1rem;
-        }
-
-        /* HEADER STYLES */
-        .railway-header {
-          position: sticky;
-          top: 0;
-          z-index: 1000;
-          background: white;
-          transition: all 0.3s ease;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .railway-header.scrolled {
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Header Top */
-        .header-top {
-          background: linear-gradient(135deg, #1e40af, #3b82f6);
-          color: white;
-          padding: 0.5rem 0;
-        }
-
-        .top-content {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 0.875rem;
-        }
-
-        .contact-info {
-          display: flex;
-          gap: 2rem;
-        }
-
-        .contact-item {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .live-time {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-weight: 600;
-          background: rgba(255, 255, 255, 0.1);
-          padding: 0.25rem 0.75rem;
-          border-radius: 20px;
-        }
-
-        /* Header Main */
-        .header-main {
-          background: white;
-          padding: 1rem 0;
-          border-bottom: 1px solid #e5e7eb;
-        }
-
-        .header-content {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 2rem;
-        }
-
-        .logo-section .logo {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        .logo-icon {
-          width: 60px;
-          height: 60px;
-          background: linear-gradient(135deg, #1e40af, #3b82f6);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.5rem;
-          color: white;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo-text h1 {
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: #1e40af;
-          margin: 0;
-        }
-
-        .logo-text span {
-          font-size: 0.875rem;
-          color: #6b7280;
-        }
-
-        .main-nav .nav-list {
-          display: flex;
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          gap: 2rem;
-        }
-
-        .nav-link {
-          text-decoration: none;
-          color: #4b5563;
-          font-weight: 500;
-          padding: 0.5rem 1rem;
-          border-radius: 8px;
-          transition: all 0.3s ease;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-          color: #1e40af;
-          background: #f0f9ff;
-        }
-
-        .emergency-btn {
-          background: linear-gradient(135deg, #ef4444, #dc2626);
-          color: white;
-          border: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: 25px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          animation: pulse 2s infinite;
-        }
-
-        .emergency-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
-        }
-
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
-
-        /* Stats Bar */
-        .stats-bar {
-          background: #f8fafc;
-          padding: 1rem 0;
-          border-bottom: 1px solid #e5e7eb;
-        }
-
-        .stats-content {
-          display: flex;
-          justify-content: space-around;
-          align-items: center;
-        }
-
-        .stat-item {
-          text-align: center;
-        }
-
-        .stat-number {
-          display: block;
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: #1e40af;
-        }
-
-        .stat-label {
-          display: block;
-          font-size: 0.875rem;
-          color: #6b7280;
-        }
-
-        /* FOOTER STYLES */
-        .railway-footer {
-          background: #1f2937;
-          color: white;
-        }
-
-        /* Newsletter Section */
-        .newsletter-section {
-          background: linear-gradient(135deg, #1e40af, #3b82f6);
-          padding: 3rem 0;
-        }
-
-        .newsletter-content {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 2rem;
-        }
-
-        .newsletter-text h3 {
-          font-size: 1.5rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .newsletter-text p {
-          opacity: 0.9;
-          margin: 0;
-        }
-
-        .newsletter-form {
-          display: flex;
-          gap: 1rem;
-          min-width: 400px;
-        }
-
-        .newsletter-input {
-          flex: 1;
-          padding: 1rem;
-          border: none;
-          border-radius: 8px;
-          font-size: 1rem;
-        }
-
-        .newsletter-btn {
-          background: #f59e0b;
-          color: white;
-          border: none;
-          padding: 1rem 2rem;
-          border-radius: 8px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-
-        .newsletter-btn:hover {
-          background: #d97706;
-          transform: translateY(-2px);
-        }
-
-        /* Footer Main */
-        .footer-main {
-          padding: 3rem 0;
-        }
-
-        .footer-grid {
-          display: grid;
-          grid-template-columns: 2fr 1fr 1fr 1.5fr;
-          gap: 3rem;
-        }
-
-        .footer-column h4 {
-          font-size: 1.125rem;
-          font-weight: 600;
-          margin-bottom: 1.5rem;
-          color: #f59e0b;
-        }
-
-        .footer-logo {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          margin-bottom: 1.5rem;
-        }
-
-        .footer-logo .logo-icon {
-          width: 50px;
-          height: 50px;
-          background: linear-gradient(135deg, #3b82f6, #1e40af);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.25rem;
-        }
-
-        .footer-logo .logo-text h3 {
-          font-size: 1.25rem;
-          margin: 0;
-          color: white;
-        }
-
-        .footer-logo .logo-text span {
-          font-size: 0.875rem;
-          color: #9ca3af;
-        }
-
-        .footer-description {
-          line-height: 1.6;
-          color: #d1d5db;
-          margin-bottom: 2rem;
-        }
-
-        .social-links {
-          display: flex;
-          gap: 1rem;
-        }
-
-        .social-link {
-          width: 40px;
-          height: 40px;
-          background: #374151;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          text-decoration: none;
-          transition: all 0.3s ease;
-        }
-
-        .social-link:hover {
-          background: #3b82f6;
-          transform: translateY(-2px);
-        }
-
-        .footer-links {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-
-        .footer-links li {
-          margin-bottom: 0.75rem;
-        }
-
-        .footer-links a {
-          color: #d1d5db;
-          text-decoration: none;
-          transition: all 0.3s ease;
-        }
-
-        .footer-links a:hover {
-          color: #f59e0b;
-        }
-
-        .contact-info .contact-item {
-          display: flex;
-          gap: 1rem;
-          margin-bottom: 1.5rem;
-          align-items: flex-start;
-        }
-
-        .contact-icon {
-          width: 40px;
-          height: 40px;
-          background: #374151;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        .contact-item strong {
-          color: #f59e0b;
-          display: block;
-          margin-bottom: 0.25rem;
-        }
-
-        .contact-item p {
-          color: #d1d5db;
-          margin: 0;
-          font-size: 0.875rem;
-        }
-
-        /* Footer Bottom */
-        .footer-bottom {
-          background: #111827;
-          padding: 1.5rem 0;
-          border-top: 1px solid #374151;
-        }
-
-        .footer-bottom-content {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .copyright p {
-          margin: 0;
-          color: #9ca3af;
-          font-size: 0.875rem;
-        }
-
-        .footer-bottom-links {
-          display: flex;
-          gap: 2rem;
-        }
-
-        .footer-bottom-links a {
-          color: #9ca3af;
-          text-decoration: none;
-          font-size: 0.875rem;
-          transition: color 0.3s ease;
-        }
-
-        .footer-bottom-links a:hover {
-          color: #f59e0b;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-          .header-content {
-            flex-direction: column;
-            gap: 1rem;
-          }
-
-          .main-nav .nav-list {
-            flex-wrap: wrap;
-            gap: 1rem;
-          }
-
-          .top-content {
-            flex-direction: column;
-            gap: 0.5rem;
-            text-align: center;
-          }
-
-          .contact-info {
-            flex-direction: column;
-            gap: 0.5rem;
-          }
-
-          .stats-content {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            display: grid;
-          }
-
-          .newsletter-content {
-            flex-direction: column;
-            text-align: center;
-          }
-
-          .newsletter-form {
-            min-width: auto;
-            width: 100%;
-          }
-
-          .footer-grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-          }
-
-          .footer-bottom-content {
-            flex-direction: column;
-            gap: 1rem;
-            text-align: center;
-          }
-
-          .footer-bottom-links {
-            flex-wrap: wrap;
-            justify-content: center;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .newsletter-form {
-            flex-direction: column;
-          }
-
-          .main-nav .nav-list {
-            flex-direction: column;
-            align-items: center;
-          }
-
-          .header-actions {
-            text-align: center;
-          }
-        }
-      
+
+.book-cab-btn {
+    background-color: #3b82f6;
+    /* Blue color */
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    /* Rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-top: 1rem;
+    display: inline-block;
+}
+
+.book-cab-btn:hover {
+    background-color: #2563eb;
+    /* Darker blue on hover */
+    transform: translateY(-2px);
+}
+
+.book-cab-btn:active {
+    background-color: #1d4ed8;
+    /* Even darker on click */
+    transform: translateY(0);
+}
+
+.travel-info {
+    background: #f9f9f9;
+    border-radius: 16px;
+    padding: 16px;
+    margin-top: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    font-family: "Segoe UI", sans-serif;
+}
+
+.travel-info-content {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 16px;
+}
+
+.travel-metric {
+    text-align: center;
+}
+
+.travel-metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.travel-metric-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Leave Time Box */
+.leave-time-box {
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.leave-time-label {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #222;
+}
+
+.leave-time-value {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #0077ff;
+    margin-bottom: 4px;
+}
+
+.leave-time-note {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+/* Buttons */
+.leave-time-box button {
+    display: block;
+    width: 100%;
+    margin: 6px 0;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.book-cab-btn {
+    background: #000;
+    color: #fff;
+}
+
+.book-cab-btn:hover {
+    background: #333;
+}
+
+.metro-btn {
+    background: #0077ff;
+    color: white;
+}
+
+.metro-btn:hover {
+    background: #0056b3;
+}
+
+.bus-btn {
+    background: #28a745;
+    color: white;
+}
+
+.bus-btn:hover {
+    background: #1e7e34;
+}
