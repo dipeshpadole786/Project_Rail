@@ -1,23 +1,3 @@
-import mongoose from 'mongoose';
-
-const Schema = mongoose.Schema;
-// --- 1. Your Schema and Model ---
-const metroScheduleSchema = new Schema({
-    station_name: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    departures: {
-        type: [String],
-        required: true
-    }
-}, { timestamps: true });
-
-const MetroSchedule = mongoose.model('MetroSchedule', metroScheduleSchema);
-module.exports = MetroSchedule;
-
-// --- 2. Your Sample Data ---
 
 const sampledata = [
     {
@@ -141,43 +121,3 @@ const sampledata = [
         ]
     }
 ]
-
-
-// --- 3. Database Connection and Data Insertion Function ---
-
-// Your MongoDB connection string. Replace 'metroDB' with your database name.
-const MONGO_URI = 'mongodb://127.0.0.1:27017/metroDB';
-
-/**
- * Connects to MongoDB and inserts the metro schedule data.
- * It checks if data already exists to avoid duplication.
- */
-async function seedDatabase() {
-    try {
-        // Connect to the database
-        await mongoose.connect(MONGO_URI);
-        console.log('Successfully connected to MongoDB.');
-
-        // ❗ Check if the collection is already populated
-        const count = await MetroSchedule.countDocuments();
-        if (count > 0) {
-            console.log('Database has already been seeded. Skipping insertion.');
-            return; // Exit the function if data exists
-        }
-
-        // Use insertMany for efficient bulk insertion
-        console.log('Inserting data...');
-        await MetroSchedule.insertMany(sampledata);
-        console.log('✅ Data successfully seeded!');
-
-    } catch (error) {
-        console.error('Error seeding the database:', error);
-    } finally {
-        // Ensure the connection is closed after the script runs
-        console.log('Closing MongoDB connection.');
-        mongoose.connection.close();
-    }
-}
-
-// --- 4. Run the Function ---
-seedDatabase();

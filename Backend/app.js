@@ -5,16 +5,17 @@ import fetch from "node-fetch";
 import mongoose from "mongoose";
 const app = express();
 const PORT = 5000;
+import MetroSchedule from "./Models/Metro_data";
 
-const mongoURI = "mongodb://127.0.0.1:27017/Rail";
 
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+async function main() {
+    await mongoose.connect("mongodb://127.0.0.1:27017/Rail");
+}
+main().then(() => {
+    console.log(
+        "Database connected!"
+    )
 })
-    .then(() => console.log("MongoDB connected successfully"))
-    .catch((err) => console.error("MongoDB connection error:", err));
-
 const ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjU0NDY3MjA3MjY4MDQ3MjA5ZDJmOTM2MjllYjZhZWM5IiwiaCI6Im11cm11cjY0In0=";
 
 app.use(cors());
@@ -23,23 +24,7 @@ app.use(express.json());
 // Nagpur city bounding box
 const NAGPUR_CITY_BBOX = "78.95,21.05,79.2,21.25";
 
-async function geocode(place) {
-    const res = await fetch(
-        `https://api.openrouteservice.org/geocode/search?api_key=${ORS_API_KEY}&text=${encodeURIComponent(place)}&boundary.rect=${NAGPUR_CITY_BBOX}`
-    );
-    const data = await res.json();
-    const feat = data?.features?.[0];
 
-    // Check locality/county
-    if (
-        !feat?.properties?.locality?.includes("Nagpur") &&
-        !feat?.properties?.county?.includes("Nagpur")
-    ) {
-        return null;
-    }
-
-    return feat;
-}
 
 app.post("/api/route", async (req, res) => {
     const { from, to } = req.body || {};
@@ -96,5 +81,21 @@ app.post("/api/route", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch routes" });
     }
 });
+
+// Example backend route (Express)
+// Example backend route
+app.get("/metro/:station", (req, res) => {
+  const stationName = req.params.station;
+
+  // Lookup from your stored dataset
+  const data = MetroSchedule.find(st => st.station_name === stationName);
+
+  if (!data) {
+    return res.status(404).json({ error: "Station not found" });
+  }
+
+  res.json(data);
+});
+
 
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
