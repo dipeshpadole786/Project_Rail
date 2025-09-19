@@ -15,7 +15,7 @@ const metroScheduleSchema = new Schema({
 }, { timestamps: true });
 
 const MetroSchedule = mongoose.model('MetroSchedule', metroScheduleSchema);
-module.exports = MetroSchedule;
+export default MetroSchedule;
 
 // --- 2. Your Sample Data ---
 
@@ -180,4 +180,4 @@ async function seedDatabase() {
 }
 
 // --- 4. Run the Function ---
-seedDatabase();
+// seedDatabase();

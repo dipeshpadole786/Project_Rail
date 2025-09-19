@@ -32,32 +32,12 @@ export default function PnrStatus() {
     const [currentTime, setCurrentTime] = useState(new Date());
     const [countdown, setCountdown] = useState("");
     const [loading, setLoading] = useState(false);
+    const [metroTiming, setMetroTiming] = useState(null);
+
 
     // ✅ States for nearest metros
     const [nearestUserMetro, setNearestUserMetro] = useState(null);
     const [nearestStationMetro, setNearestStationMetro] = useState(null);
-
-    // 🚇 Nagpur Metro Station Data
-    const nagpurMetroStations = [
-        { "stationName": "Lokmanya Nagar", "stationId": "46549102" },
-        { "stationName": "Bansi Nagar", "stationId": "46549101" },
-        { "stationName": "Vasudev Nagar", "stationId": "46549100" },
-        { "stationName": "Rachana Ring Road Junction", "stationId": "46549099" },
-        { "stationName": "Subhash Nagar", "stationId": "46549098" },
-        { "stationName": "Ambazari Lake", "stationId": "46549097" },
-        { "stationName": "LAD Square", "stationId": "46549096" },
-        { "stationName": "Shankar Nagar Square", "stationId": "46549095" },
-        { "stationName": "Institute of Engineers", "stationId": "46549094" },
-        { "stationName": "Jhansi Rani Square", "stationId": "46549093" },
-        { "stationName": "Nagpur Railway Station", "stationId": "46549092" },
-        { "stationName": "Dosar Vaishya Square", "stationId": "46549091" },
-        { "stationName": "Agrasen Square", "stationId": "46549090" },
-        { "stationName": "Chitar Oli Chowk", "stationId": "46549089" },
-        { "stationName": "Telephone Exchange", "stationId": "46549088" },
-        { "stationName": "Ambedkar Square", "stationId": "46549087" },
-        { "stationName": "Vaishnodevi Square", "stationId": "46549086" },
-        { "stationName": "Prajapati Nagar", "stationId": "46549085" }
-    ];
 
     // ⏰ Update current time every second
     useEffect(() => {
@@ -74,10 +54,43 @@ export default function PnrStatus() {
             to: "Mumbai CST, Maharashtra",
             fromCoords: [21.1501, 79.0882], // Nagpur Junction Lat/Lng
             departureTime: "09:15", // Train departure time
-            date: "2025-09-19",
+            date: "2025-08-26",
             delayMinutes: 30,
         },
     };
+
+    // 👉 Add this function at the top inside your component
+    const handlemetro = async (leaveTime, userMetro) => {
+        try {
+            if (!leaveTime || !userMetro) {
+                alert("Missing metro data");
+                return;
+            }
+
+            const res = await fetch("http://localhost:5000/api/metro", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    leaveTime,
+                    nearestUserMetro: userMetro,
+                }),
+            });
+
+            const data = await res.json();
+            console.log("Metro API Response:", data);
+
+            // ✅ Save metro timing in state
+            setMetroTiming(data);
+
+        } catch (err) {
+            console.error("Metro API Error:", err);
+            alert("Failed to fetch metro details");
+        }
+    };
+
+
 
     // ✅ Function to fetch nearest metro station
     const fetchNearestMetro = async (lat, lng) => {
@@ -105,32 +118,6 @@ export default function PnrStatus() {
             console.error("Overpass API Error:", err);
             return null;
         }
-    };
-
-    // ✅ Function to match metro station with Moovit data
-    const findMatchingStation = (stationName) => {
-        if (!stationName) return null;
-
-        // Try exact match first
-        let match = nagpurMetroStations.find(station =>
-            station.stationName.toLowerCase() === stationName.toLowerCase()
-        );
-
-        // If no exact match, try partial match
-        if (!match) {
-            match = nagpurMetroStations.find(station =>
-                station.stationName.toLowerCase().includes(stationName.toLowerCase()) ||
-                stationName.toLowerCase().includes(station.stationName.toLowerCase())
-            );
-        }
-
-        return match;
-    };
-
-    // ✅ Function to generate Moovit URL
-    const generateMoovitUrl = (stationName, stationId) => {
-        const formattedStationName = stationName.replace(/\s+/g, '_');
-        return `https://moovitapp.com/index/en/public_transit-${formattedStationName}-Nagpur-stop_${stationId}-6166`;
     };
 
     // ✅ Check if metro services are running (before 10 PM)
@@ -370,35 +357,12 @@ export default function PnrStatus() {
                             <div className="info-value">{data.from}</div>
                         </div>
 
-                        {/* ✅ Nearest Metro Stations with Moovit Links */}
+                        {/* ✅ Nearest Metro Stations */}
                         {nearestUserMetro && (
                             <div className="info-item">
                                 <div className="info-label">🚇 Nearest metro station from you</div>
                                 <div className="info-value">
                                     {nearestUserMetro.name}
-                                    {findMatchingStation(nearestUserMetro.name) && (
-                                        <div style={{ marginTop: '8px' }}>
-                                            <button
-                                                className="moovit-link-btn"
-                                                onClick={() => {
-                                                    const matchedStation = findMatchingStation(nearestUserMetro.name);
-                                                    const moovitUrl = generateMoovitUrl(matchedStation.stationName, matchedStation.stationId);
-                                                    window.open(moovitUrl, '_blank');
-                                                }}
-                                                style={{
-                                                    backgroundColor: '#4CAF50',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    padding: '6px 12px',
-                                                    borderRadius: '4px',
-                                                    fontSize: '12px',
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                🚇 Check Live Arrivals
-                                            </button>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         )}
@@ -410,29 +374,6 @@ export default function PnrStatus() {
                                 </div>
                                 <div className="info-value">
                                     {nearestStationMetro.name}
-                                    {findMatchingStation(nearestStationMetro.name) && (
-                                        <div style={{ marginTop: '8px' }}>
-                                            <button
-                                                className="moovit-link-btn"
-                                                onClick={() => {
-                                                    const matchedStation = findMatchingStation(nearestStationMetro.name);
-                                                    const moovitUrl = generateMoovitUrl(matchedStation.stationName, matchedStation.stationId);
-                                                    window.open(moovitUrl, '_blank');
-                                                }}
-                                                style={{
-                                                    backgroundColor: '#4CAF50',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    padding: '6px 12px',
-                                                    borderRadius: '4px',
-                                                    fontSize: '12px',
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                🚇 Check Live Arrivals
-                                            </button>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         )}
@@ -480,44 +421,35 @@ export default function PnrStatus() {
                                 </button>
 
                                 {/* 🚇 See Metro - Only show if metro services are active */}
+                                {/* 🚇 See Metro - Only show if metro services are active */}
                                 {isMetroServiceActive() ? (
                                     <div>
                                         <button
                                             className="metro-btn"
                                             onClick={() => {
-                                                if (!data?.from || !data?.to) return;
-                                                const metroUrl = `comgooglemaps://?saddr=${encodeURIComponent(
-                                                    data.from
-                                                )}&daddr=${encodeURIComponent(data.to)}&directionsmode=transit`;
-                                                window.location.href = metroUrl;
+                                                if (travelInfo?.leaveBy && nearestUserMetro) {
+                                                    handlemetro(travelInfo.leaveBy, nearestUserMetro);
+                                                } else {
+                                                    alert("Metro info not available yet");
+                                                }
                                             }}
                                         >
-                                            🚇 See Metro Route
+                                            🚇 See Metro
                                         </button>
 
-                                        {/* 🚇 Quick Live Arrivals for User's Nearest Metro */}
-                                        {nearestUserMetro && findMatchingStation(nearestUserMetro.name) && (
-                                            <button
-                                                className="metro-arrivals-btn"
-                                                onClick={() => {
-                                                    const matchedStation = findMatchingStation(nearestUserMetro.name);
-                                                    const moovitUrl = generateMoovitUrl(matchedStation.stationName, matchedStation.stationId);
-                                                    window.open(moovitUrl, '_blank');
-                                                }}
-                                                style={{
-                                                    backgroundColor: '#FF6B35',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    padding: '12px 20px',
-                                                    borderRadius: '8px',
-                                                    fontSize: '14px',
-                                                    cursor: 'pointer',
-                                                    marginLeft: '10px',
-                                                    fontWeight: 'bold'
-                                                }}
-                                            >
-                                                🕐 Live Metro Arrivals
-                                            </button>
+                                        {/* ✅ Show metro timing after button click */}
+                                        {metroTiming && (
+                                            <div className="metro-timing-box">
+                                                <div className="metro-timing-label">🚇 Next Metro</div>
+                                                <div className="metro-timing-value">
+                                                    {metroTiming.nearestDeparture !== "No more trains today"
+                                                        ? `Next train at ${metroTiming.nearestDeparture}`
+                                                        : "No more trains available today"}
+                                                </div>
+                                                <div className="metro-timing-note">
+                                                    (From: {metroTiming.station})
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
                                 ) : (
@@ -525,6 +457,8 @@ export default function PnrStatus() {
                                         🚇 Metro services closed now (after 10 PM)
                                     </div>
                                 )}
+
+
 
                                 {/* 🚌 See Buses */}
                                 <button

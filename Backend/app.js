@@ -3,13 +3,15 @@ import cors from "cors";
 import fetch from "node-fetch";
 
 import mongoose from "mongoose";
+import MetroSchedule from "./Models/Metro_data.js";
+
 const app = express();
 const PORT = 5000;
-import MetroSchedule from "./Models/Metro_data";
+// import MetroSchedule from "./Models/Metro_data";
 
 
 async function main() {
-    await mongoose.connect("mongodb://127.0.0.1:27017/Rail");
+    await mongoose.connect("mongodb://127.0.0.1:27017/metroDB");
 }
 main().then(() => {
     console.log(
@@ -23,6 +25,52 @@ app.use(express.json());
 
 // Nagpur city bounding box
 const NAGPUR_CITY_BBOX = "78.95,21.05,79.2,21.25";
+
+app.post("/api/metro", async (req, res) => {
+    try {
+        const { leaveTime, nearestUserMetro } = req.body;
+
+        if (!leaveTime || !nearestUserMetro?.name) {
+            return res.status(400).json({ error: "Missing leaveTime or station name" });
+        }
+
+        // ✅ Convert leaveTime into Date object
+        const today = new Date();
+        const leaveDate = new Date(
+            `${today.toISOString().split("T")[0]} ${leaveTime}`
+        );
+
+        // ✅ Find metro station in DB
+        const station = await MetroSchedule.findOne({
+            station_name: nearestUserMetro.name,
+        });
+
+        if (!station) {
+            return res.status(404).json({ error: "Station not found in metro schedule" });
+        }
+
+        // ✅ Find nearest departure
+        let nearestDeparture = null;
+        for (const dep of station.departures) {
+            const depDate = new Date(`${today.toISOString().split("T")[0]} ${dep}`);
+
+            if (depDate >= leaveDate) {
+                nearestDeparture = dep;
+                break;
+            }
+        }
+
+        res.json({
+            station: station.station_name,
+            leaveTime,
+            nearestDeparture: nearestDeparture || "No more trains today",
+        });
+
+    } catch (err) {
+        console.error("Metro API Error:", err);
+        res.status(500).json({ error: "Server error while fetching metro schedule" });
+    }
+});
 
 
 
@@ -82,20 +130,7 @@ app.post("/api/route", async (req, res) => {
     }
 });
 
-// Example backend route (Express)
-// Example backend route
-app.get("/metro/:station", (req, res) => {
-  const stationName = req.params.station;
 
-  // Lookup from your stored dataset
-  const data = MetroSchedule.find(st => st.station_name === stationName);
-
-  if (!data) {
-    return res.status(404).json({ error: "Station not found" });
-  }
-
-  res.json(data);
-});
 
 
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
