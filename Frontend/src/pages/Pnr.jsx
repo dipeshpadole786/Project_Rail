@@ -33,11 +33,13 @@ export default function PnrStatus() {
     const [countdown, setCountdown] = useState("");
     const [loading, setLoading] = useState(false);
     const [metroTiming, setMetroTiming] = useState(null);
+    const [busTiming, setBusTiming] = useState(null);
 
-
-    // ✅ States for nearest metros
+    // ✅ States for nearest metros and buses
     const [nearestUserMetro, setNearestUserMetro] = useState(null);
     const [nearestStationMetro, setNearestStationMetro] = useState(null);
+    const [nearestUserBusStop, setNearestUserBusStop] = useState(null);
+    const [nearestStationBusStop, setNearestStationBusStop] = useState(null);
 
     // ⏰ Update current time every second
     useEffect(() => {
@@ -54,12 +56,12 @@ export default function PnrStatus() {
             to: "Mumbai CST, Maharashtra",
             fromCoords: [21.1501, 79.0882], // Nagpur Junction Lat/Lng
             departureTime: "09:15", // Train departure time
-            date: "2025-08-26",
+            date: "2025-09-25",
             delayMinutes: 30,
         },
     };
 
-    // 👉 Add this function at the top inside your component
+    // ✅ Metro API handler
     const handlemetro = async (leaveTime, userMetro) => {
         try {
             if (!leaveTime || !userMetro) {
@@ -80,13 +82,40 @@ export default function PnrStatus() {
 
             const data = await res.json();
             console.log("Metro API Response:", data);
-
-            // ✅ Save metro timing in state
             setMetroTiming(data);
 
         } catch (err) {
             console.error("Metro API Error:", err);
             alert("Failed to fetch metro details");
+        }
+    };
+
+    // ✅ NEW Bus API handler
+    const handleBus = async (leaveTime, userBusStop) => {
+        try {
+            if (!leaveTime || !userBusStop) {
+                alert("Missing bus stop data");
+                return;
+            }
+
+            console.log("Fetching buses for:", leaveTime, userBusStop.name);
+
+            const res = await fetch("http://localhost:5000/api/bus", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    leaveTime,
+                    nearestUserBusStop: userBusStop,
+                }),
+            });
+
+            const data = await res.json();
+            console.log("Bus API Response:", data);
+            setBusTiming(data);
+
+        } catch (err) {
+            console.error("Bus API Error:", err);
+            alert("Failed to fetch bus details");
         }
     };
 
@@ -116,6 +145,38 @@ export default function PnrStatus() {
             return null;
         } catch (err) {
             console.error("Overpass API Error:", err);
+            return null;
+        }
+    };
+
+    // ✅ NEW Function to fetch nearest bus stop
+    const fetchNearestBusStop = async (lat, lng) => {
+        try {
+            const query = `
+                [out:json];
+                (
+                  node(around:2000, ${lat}, ${lng})[public_transport=stop_position][bus=yes];
+                  node(around:2000, ${lat}, ${lng})[highway=bus_stop];
+                  node(around:2000, ${lat}, ${lng})[amenity=bus_station];
+                );
+                out center 1;
+            `;
+            const res = await fetch("https://overpass-api.de/api/interpreter", {
+                method: "POST",
+                body: query,
+            });
+            const json = await res.json();
+
+            if (json.elements && json.elements.length > 0) {
+                const nearest = json.elements[0];
+                return {
+                    name: nearest.tags.name || "Unnamed Bus Stop",
+                    coords: [nearest.lat, nearest.lon],
+                };
+            }
+            return null;
+        } catch (err) {
+            console.error("Overpass API Error for Bus:", err);
             return null;
         }
     };
@@ -172,6 +233,19 @@ export default function PnrStatus() {
                         trainData.fromCoords[1]
                     );
                     setNearestStationMetro(stationMetro);
+
+                    // ✅ Fetch nearest bus stops
+                    const userBusStop = await fetchNearestBusStop(
+                        userCoords[0],
+                        userCoords[1]
+                    );
+                    setNearestUserBusStop(userBusStop);
+
+                    const stationBusStop = await fetchNearestBusStop(
+                        trainData.fromCoords[0],
+                        trainData.fromCoords[1]
+                    );
+                    setNearestStationBusStop(stationBusStop);
 
                     // ✅ Call ORS API for driving route
                     try {
@@ -370,10 +444,31 @@ export default function PnrStatus() {
                         {nearestStationMetro && (
                             <div className="info-item">
                                 <div className="info-label">
-                                    🚇 Nearest metro station from railway station according to PNR
+                                    🚇 Nearest metro station from railway station
                                 </div>
                                 <div className="info-value">
                                     {nearestStationMetro.name}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ✅ NEW Nearest Bus Stops */}
+                        {nearestUserBusStop && (
+                            <div className="info-item">
+                                <div className="info-label">🚌 Nearest bus stop from you</div>
+                                <div className="info-value">
+                                    {nearestUserBusStop.name}
+                                </div>
+                            </div>
+                        )}
+
+                        {nearestStationBusStop && (
+                            <div className="info-item">
+                                <div className="info-label">
+                                    🚌 Nearest bus stop from railway station
+                                </div>
+                                <div className="info-value">
+                                    {nearestStationBusStop.name}
                                 </div>
                             </div>
                         )}
@@ -420,8 +515,7 @@ export default function PnrStatus() {
                                     🚖 Book Cab
                                 </button>
 
-                                {/* 🚇 See Metro - Only show if metro services are active */}
-                                {/* 🚇 See Metro - Only show if metro services are active */}
+                                {/* 🚇 See Metro */}
                                 {isMetroServiceActive() ? (
                                     <div>
                                         <button
@@ -439,14 +533,22 @@ export default function PnrStatus() {
 
                                         {/* ✅ Show metro timing after button click */}
                                         {metroTiming && (
-                                            <div className="metro-timing-box">
-                                                <div className="metro-timing-label">🚇 Next Metro</div>
-                                                <div className="metro-timing-value">
-                                                    {metroTiming.nearestDeparture !== "No more trains today"
-                                                        ? `Next train at ${metroTiming.nearestDeparture}`
-                                                        : "No more trains available today"}
+                                            <div className="metro-card">
+                                                <div className="metro-title">
+                                                    🚇 Upcoming Metros
                                                 </div>
-                                                <div className="metro-timing-note">
+
+                                                <div className="metro-times">
+                                                    {metroTiming.upcomingDepartures[0] === "No more trains today"
+                                                        ? "No more trains available today"
+                                                        : metroTiming.upcomingDepartures.map((time, index) => (
+                                                            <span key={index} className={`metro-time ${index === 0 ? "next-train" : ""}`}>
+                                                                {time}
+                                                            </span>
+                                                        ))}
+                                                </div>
+
+                                                <div className="metro-note">
                                                     (From: {metroTiming.station})
                                                 </div>
                                             </div>
@@ -458,21 +560,38 @@ export default function PnrStatus() {
                                     </div>
                                 )}
 
-
-
-                                {/* 🚌 See Buses */}
+                                {/* ✅ NEW See Buses Button */}
                                 <button
                                     className="bus-btn"
                                     onClick={() => {
-                                        if (!data?.from || !data?.to) return;
-                                        const busUrl = `comgooglemaps://?saddr=${encodeURIComponent(
-                                            data.from
-                                        )}&daddr=${encodeURIComponent(data.to)}&directionsmode=transit`;
-                                        window.location.href = busUrl;
+                                        if (travelInfo?.leaveBy) {
+                                            handleBus(travelInfo.leaveBy, { name: "Rajiv Nagar" }); // ✅ Use MongoDB bus stop
+                                        } else {
+                                            alert("Bus info not available yet");
+                                        }
                                     }}
                                 >
                                     🚌 See Buses
                                 </button>
+
+
+                                {/* ✅ NEW Show bus timing after button click */}
+                                {busTiming && (
+                                    <div className="bus-card">
+                                        <div className="bus-title">🚌 Upcoming Buses</div>
+                                        <div className="bus-times">
+                                            {busTiming.upcomingDepartures[0] === "No more buses today"
+                                                ? "No more buses available today"
+                                                : busTiming.upcomingDepartures.map((time, index) => (
+                                                    <span key={index} className={`bus-time ${index === 0 ? "next-bus" : ""}`}>
+                                                        {time}
+                                                    </span>
+                                                ))}
+                                        </div>
+                                        <div className="bus-note">(From: {busTiming.station})</div>
+                                    </div>
+                                )}
+
                             </div>
                         </div>
                     )}
@@ -530,6 +649,29 @@ export default function PnrStatus() {
                                             <div style={{ fontSize: '14px', fontWeight: 'bold', textAlign: 'center' }}>
                                                 🚇 NEAREST METRO TO STATION<br />
                                                 {nearestStationMetro.name}
+                                            </div>
+                                        </Popup>
+                                    </Marker>
+                                )}
+
+                                {/* ✅ NEW Nearest Bus Stops */}
+                                {nearestUserBusStop && (
+                                    <Marker position={nearestUserBusStop.coords}>
+                                        <Popup>
+                                            <div style={{ fontSize: '14px', fontWeight: 'bold', textAlign: 'center' }}>
+                                                🚌 NEAREST BUS STOP TO YOU<br />
+                                                {nearestUserBusStop.name}
+                                            </div>
+                                        </Popup>
+                                    </Marker>
+                                )}
+
+                                {nearestStationBusStop && (
+                                    <Marker position={nearestStationBusStop.coords}>
+                                        <Popup>
+                                            <div style={{ fontSize: '14px', fontWeight: 'bold', textAlign: 'center' }}>
+                                                🚌 NEAREST BUS STOP TO STATION<br />
+                                                {nearestStationBusStop.name}
                                             </div>
                                         </Popup>
                                     </Marker>
