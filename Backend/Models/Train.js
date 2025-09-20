@@ -99,6 +99,8 @@ const sampleTrains = [
         departureTime: "14:15",
         date: "2025-08-27",
         delayMinutes: 45,
+        
+
     },
     {
         userId: "1000000010",
@@ -159,7 +161,7 @@ const trainSchema = new mongoose.Schema({
 const insertSampleData = async () => {
     try {
         // Connect to MongoDB
-        await mongoose.connect("mongodb://127.0.0.1:27017/Rail", {
+        await mongoose.connect("mongodb://127.0.0.1:27017/metroDB", {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
@@ -181,7 +183,7 @@ const insertSampleData = async () => {
 };
 
 // Run function
-insertSampleData();
+// insertSampleData();
 
 const Train = mongoose.model("Train", trainSchema);
 

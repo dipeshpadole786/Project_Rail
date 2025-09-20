@@ -34,34 +34,51 @@ export default function PnrStatus() {
     const [loading, setLoading] = useState(false);
     const [metroTiming, setMetroTiming] = useState(null);
     const [busTiming, setBusTiming] = useState(null);
+    const [error, setError] = useState("");
 
-    // ✅ States for nearest metros and buses
+    // States for nearest metros and buses
     const [nearestUserMetro, setNearestUserMetro] = useState(null);
     const [nearestStationMetro, setNearestStationMetro] = useState(null);
     const [nearestUserBusStop, setNearestUserBusStop] = useState(null);
     const [nearestStationBusStop, setNearestStationBusStop] = useState(null);
 
-    // ⏰ Update current time every second
+    // Update current time every second
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
 
-    // Dummy train database
-    const dummyData = {
-        "1234567890": {
-            trainNo: "12139",
-            trainName: "Sewagram Express",
-            from: "Nagpur Junction, Maharashtra",
-            to: "Mumbai CST, Maharashtra",
-            fromCoords: [21.1501, 79.0882], // Nagpur Junction Lat/Lng
-            departureTime: "09:15", // Train departure time
-            date: "2025-09-25",
-            delayMinutes: 30,
-        },
+    // ✅ NEW: Function to fetch PNR data from backend
+    const fetchPNRData = async (pnrNumber) => {
+        try {
+            const response = await fetch("http://localhost:5000/api/pnr", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ pnr: pnrNumber }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || "Failed to fetch PNR data");
+            }
+
+            // Transform MongoDB date to the format expected by frontend
+            const trainData = {
+                ...result,
+                date: new Date(result.date).toISOString().split('T')[0], // Convert to YYYY-MM-DD format
+            };
+
+            return trainData;
+        } catch (error) {
+            console.error("PNR fetch error:", error);
+            throw error;
+        }
     };
 
-    // ✅ Metro API handler
+    // Metro API handler
     const handlemetro = async (leaveTime, userMetro) => {
         try {
             if (!leaveTime || !userMetro) {
@@ -90,7 +107,7 @@ export default function PnrStatus() {
         }
     };
 
-    // ✅ NEW Bus API handler
+    // Bus API handler
     const handleBus = async (leaveTime, userBusStop) => {
         try {
             if (!leaveTime || !userBusStop) {
@@ -119,9 +136,7 @@ export default function PnrStatus() {
         }
     };
 
-
-
-    // ✅ Function to fetch nearest metro station
+    // Function to fetch nearest metro station
     const fetchNearestMetro = async (lat, lng) => {
         try {
             const query = `
@@ -149,7 +164,7 @@ export default function PnrStatus() {
         }
     };
 
-    // ✅ NEW Function to fetch nearest bus stop
+    // Function to fetch nearest bus stop
     const fetchNearestBusStop = async (lat, lng) => {
         try {
             const query = `
@@ -181,7 +196,7 @@ export default function PnrStatus() {
         }
     };
 
-    // ✅ Check if metro services are running (before 10 PM)
+    // Check if metro services are running (before 10 PM)
     const isMetroServiceActive = () => {
         const now = new Date();
         const currentHour = now.getHours();
@@ -195,150 +210,155 @@ export default function PnrStatus() {
         }
 
         setLoading(true);
-        const trainData = dummyData[pnr] || null;
-        setData(trainData);
+        setError("");
+        setData(null);
 
-        if (!trainData) {
+        try {
+            // ✅ Fetch data from backend instead of dummy data
+            const trainData = await fetchPNRData(pnr);
+            setData(trainData);
+
+            // Get user location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                        const userCoords = [pos.coords.latitude, pos.coords.longitude];
+                        setUserLocation(userCoords);
+
+                        // Reverse Geocoding
+                        try {
+                            const res = await fetch(
+                                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${userCoords[0]}&lon=${userCoords[1]}`
+                            );
+                            const json = await res.json();
+                            setLocationName(json.display_name);
+                        } catch (err) {
+                            console.error("Reverse Geocode Error:", err);
+                        }
+
+                        // Fetch nearest metros
+                        const userMetro = await fetchNearestMetro(
+                            userCoords[0],
+                            userCoords[1]
+                        );
+                        setNearestUserMetro(userMetro);
+
+                        const stationMetro = await fetchNearestMetro(
+                            trainData.fromCoords[0],
+                            trainData.fromCoords[1]
+                        );
+                        setNearestStationMetro(stationMetro);
+
+                        // Fetch nearest bus stops
+                        const userBusStop = await fetchNearestBusStop(
+                            userCoords[0],
+                            userCoords[1]
+                        );
+                        setNearestUserBusStop(userBusStop);
+
+                        const stationBusStop = await fetchNearestBusStop(
+                            trainData.fromCoords[0],
+                            trainData.fromCoords[1]
+                        );
+                        setNearestStationBusStop(stationBusStop);
+
+                        // Call ORS API for driving route
+                        try {
+                            const Directions = new Ors.Directions({
+                                api_key:
+                                    "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjU0NDY3MjA3MjY4MDQ3MjA5ZDJmOTM2MjllYjZhZWM5IiwiaCI6Im11cm11cjY0In0=",
+                            });
+
+                            const response = await Directions.calculate({
+                                coordinates: [
+                                    [userCoords[1], userCoords[0]],
+                                    [trainData.fromCoords[1], trainData.fromCoords[0]],
+                                ],
+                                profile: "driving-car",
+                                format: "geojson",
+                            });
+
+                            const coords = response.features[0].geometry.coordinates.map(
+                                (c) => [c[1], c[0]]
+                            );
+                            setRoute(coords);
+
+                            const distKm =
+                                response.features[0].properties.segments[0].distance / 1000;
+                            const durationMin =
+                                response.features[0].properties.segments[0].duration / 60;
+
+                            const scheduledDeparture = new Date(
+                                `${trainData.date}T${trainData.departureTime}:00`
+                            );
+
+                            const expectedDeparture = new Date(
+                                scheduledDeparture.getTime() +
+                                (trainData.delayMinutes || 0) * 60000
+                            );
+
+                            const reachBy = new Date(expectedDeparture.getTime() - 15 * 60000);
+                            const leaveBy = new Date(
+                                reachBy.getTime() - durationMin * 60000
+                            );
+
+                            setTravelInfo({
+                                distance: distKm.toFixed(2),
+                                duration: durationMin.toFixed(1),
+                                leaveBy: leaveBy.toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                }),
+                                reachBy: reachBy.toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                }),
+                            });
+                        } catch (err) {
+                            console.error("ORS Error:", err);
+                        }
+
+                        // Countdown timer
+                        if (trainData?.departureTime && trainData?.date) {
+                            const scheduledDeparture = new Date(
+                                `${trainData.date}T${trainData.departureTime}:00`
+                            );
+                            const expectedDeparture = new Date(
+                                scheduledDeparture.getTime() +
+                                (trainData.delayMinutes || 0) * 60000
+                            );
+
+                            const interval = setInterval(() => {
+                                const now = new Date();
+                                const diff = expectedDeparture - now;
+
+                                if (diff <= 0) {
+                                    setCountdown("🚂 Train already departed");
+                                    clearInterval(interval);
+                                } else {
+                                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                                    const mins = Math.floor(
+                                        (diff % (1000 * 60 * 60)) / (1000 * 60)
+                                    );
+                                    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                                    setCountdown(`${hours}h ${mins}m ${secs}s`);
+                                }
+                            }, 1000);
+                        }
+
+                        setLoading(false);
+                    },
+                    (err) => {
+                        console.error(err);
+                        alert("Unable to fetch your location");
+                        setLoading(false);
+                    }
+                );
+            }
+        } catch (error) {
+            console.error("Error fetching PNR data:", error);
+            setError(error.message);
             setLoading(false);
-            return;
-        }
-
-        // Get user location
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                async (pos) => {
-                    const userCoords = [pos.coords.latitude, pos.coords.longitude];
-                    setUserLocation(userCoords);
-
-                    // Reverse Geocoding
-                    try {
-                        const res = await fetch(
-                            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${userCoords[0]}&lon=${userCoords[1]}`
-                        );
-                        const json = await res.json();
-                        setLocationName(json.display_name);
-                    } catch (err) {
-                        console.error("Reverse Geocode Error:", err);
-                    }
-
-                    // ✅ Fetch nearest metros
-                    const userMetro = await fetchNearestMetro(
-                        userCoords[0],
-                        userCoords[1]
-                    );
-                    setNearestUserMetro(userMetro);
-
-                    const stationMetro = await fetchNearestMetro(
-                        trainData.fromCoords[0],
-                        trainData.fromCoords[1]
-                    );
-                    setNearestStationMetro(stationMetro);
-
-                    // ✅ Fetch nearest bus stops
-                    const userBusStop = await fetchNearestBusStop(
-                        userCoords[0],
-                        userCoords[1]
-                    );
-                    setNearestUserBusStop(userBusStop);
-
-                    const stationBusStop = await fetchNearestBusStop(
-                        trainData.fromCoords[0],
-                        trainData.fromCoords[1]
-                    );
-                    setNearestStationBusStop(stationBusStop);
-
-                    // ✅ Call ORS API for driving route
-                    try {
-                        const Directions = new Ors.Directions({
-                            api_key:
-                                "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjU0NDY3MjA3MjY4MDQ3MjA5ZDJmOTM2MjllYjZhZWM5IiwiaCI6Im11cm11cjY0In0=",
-                        });
-
-                        const response = await Directions.calculate({
-                            coordinates: [
-                                [userCoords[1], userCoords[0]],
-                                [trainData.fromCoords[1], trainData.fromCoords[0]],
-                            ],
-                            profile: "driving-car",
-                            format: "geojson",
-                        });
-
-                        const coords = response.features[0].geometry.coordinates.map(
-                            (c) => [c[1], c[0]]
-                        );
-                        setRoute(coords);
-
-                        const distKm =
-                            response.features[0].properties.segments[0].distance / 1000;
-                        const durationMin =
-                            response.features[0].properties.segments[0].duration / 60;
-
-                        const scheduledDeparture = new Date(
-                            `${trainData.date}T${trainData.departureTime}:00`
-                        );
-
-                        const expectedDeparture = new Date(
-                            scheduledDeparture.getTime() +
-                            (trainData.delayMinutes || 0) * 60000
-                        );
-
-                        const reachBy = new Date(expectedDeparture.getTime() - 15 * 60000);
-                        const leaveBy = new Date(
-                            reachBy.getTime() - durationMin * 60000
-                        );
-
-                        setTravelInfo({
-                            distance: distKm.toFixed(2),
-                            duration: durationMin.toFixed(1),
-                            leaveBy: leaveBy.toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                            }),
-                            reachBy: reachBy.toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                            }),
-                        });
-                    } catch (err) {
-                        console.error("ORS Error:", err);
-                    }
-
-                    // ✅ Countdown timer
-                    if (trainData?.departureTime && trainData?.date) {
-                        const scheduledDeparture = new Date(
-                            `${trainData.date}T${trainData.departureTime}:00`
-                        );
-                        const expectedDeparture = new Date(
-                            scheduledDeparture.getTime() +
-                            (trainData.delayMinutes || 0) * 60000
-                        );
-
-                        const interval = setInterval(() => {
-                            const now = new Date();
-                            const diff = expectedDeparture - now;
-
-                            if (diff <= 0) {
-                                setCountdown("🚂 Train already departed");
-                                clearInterval(interval);
-                            } else {
-                                const hours = Math.floor(diff / (1000 * 60 * 60));
-                                const mins = Math.floor(
-                                    (diff % (1000 * 60 * 60)) / (1000 * 60)
-                                );
-                                const secs = Math.floor((diff % (1000 * 60)) / 1000);
-                                setCountdown(`${hours}h ${mins}m ${secs}s`);
-                            }
-                        }, 1000);
-                    }
-
-                    setLoading(false);
-                },
-                (err) => {
-                    console.error(err);
-                    alert("Unable to fetch your location");
-                    setLoading(false);
-                }
-            );
         }
     };
 
@@ -355,7 +375,7 @@ export default function PnrStatus() {
                 <div className="search-form">
                     <input
                         type="text"
-                        placeholder="Enter your PNR number"
+                        placeholder="Enter your PNR number (e.g., 1000000001)"
                         value={pnr}
                         onChange={(e) => setPnr(e.target.value)}
                         className="pnr-input"
@@ -403,7 +423,7 @@ export default function PnrStatus() {
                             <div className="info-label">⏳ Delay</div>
                             <div className="info-value">
                                 {data.delayMinutes > 0
-                                    ? `${data.delayMinutes / 60} hours`
+                                    ? `${data.delayMinutes} minutes`
                                     : "On Time"}
                             </div>
                         </div>
@@ -431,7 +451,12 @@ export default function PnrStatus() {
                             <div className="info-value">{data.from}</div>
                         </div>
 
-                        {/* ✅ Nearest Metro Stations */}
+                        <div className="info-item">
+                            <div className="info-label">🎯 Destination</div>
+                            <div className="info-value">{data.to}</div>
+                        </div>
+
+                        {/* Nearest Metro Stations */}
                         {nearestUserMetro && (
                             <div className="info-item">
                                 <div className="info-label">🚇 Nearest metro station from you</div>
@@ -452,7 +477,7 @@ export default function PnrStatus() {
                             </div>
                         )}
 
-                        {/* ✅ NEW Nearest Bus Stops */}
+                        {/* Nearest Bus Stops */}
                         {nearestUserBusStop && (
                             <div className="info-item">
                                 <div className="info-label">🚌 Nearest bus stop from you</div>
@@ -474,7 +499,9 @@ export default function PnrStatus() {
                         )}
                     </div>
 
-                    {/* ✅ Travel Information with Leave Time */}
+                    {/* Travel Information with Leave Time */}
+                    {/* Travel Information with Leave Time */}
+                    {/* Travel Information with Leave Time */}
                     {travelInfo && (
                         <div className="travel-info">
                             <div className="travel-info-content">
@@ -492,110 +519,115 @@ export default function PnrStatus() {
                                 </div>
                             </div>
 
-                            {/* ✅ Leave Time Box */}
+                            {/* Leave Time Information */}
                             <div className="leave-time-box">
-                                <div className="leave-time-label">🕒 Leave By</div>
+                                <div className="leave-time-label">Departure Time</div>
                                 <div className="leave-time-value">{travelInfo.leaveBy}</div>
                                 <div className="leave-time-note">
-                                    (to reach station by {travelInfo.reachBy}, 15 min before train departs)
+                                    Arrive at station by {travelInfo.reachBy} (15 minutes before train departure)
                                 </div>
 
-                                {/* 🚖 Book Cab */}
-                                <button
-                                    className="book-cab-btn"
-                                    onClick={() => {
-                                        if (!userLocation || !data?.fromCoords) return;
-                                        const uberUrl = `https://m.uber.com/ul/?action=setPickup` +
-                                            `&pickup[latitude]=${userLocation[0]}&pickup[longitude]=${userLocation[1]}` +
-                                            `&dropoff[latitude]=${data.fromCoords[0]}&dropoff[longitude]=${data.fromCoords[1]}` +
-                                            `&dropoff[nickname]=${encodeURIComponent(data.from)}`;
-                                        window.open(uberUrl, "_blank");
-                                    }}
-                                >
-                                    🚖 Book Cab
-                                </button>
+                                {/* Travel Options */}
+                                <div className="travel-buttons-container">
+                                    {/* Book Taxi/Cab */}
+                                    <button
+                                        className="travel-btn book-cab-btn"
+                                        onClick={() => {
+                                            if (!userLocation || !data?.fromCoords) return;
+                                            const uberUrl = `https://m.uber.com/ul/?action=setPickup` +
+                                                `&pickup[latitude]=${userLocation[0]}&pickup[longitude]=${userLocation[1]}` +
+                                                `&dropoff[latitude]=${data.fromCoords[0]}&dropoff[longitude]=${data.fromCoords[1]}` +
+                                                `&dropoff[nickname]=${encodeURIComponent(data.from)}`;
+                                            window.open(uberUrl, "_blank");
+                                        }}
+                                        title="Book taxi service to railway station"
+                                    >
+                                        🚖 Book Taxi
+                                    </button>
 
-                                {/* 🚇 See Metro */}
-                                {isMetroServiceActive() ? (
-                                    <div>
+                                    {/* Metro Services */}
+                                    {isMetroServiceActive() ? (
                                         <button
-                                            className="metro-btn"
+                                            className="travel-btn metro-btn"
                                             onClick={() => {
                                                 if (travelInfo?.leaveBy && nearestUserMetro) {
                                                     handlemetro(travelInfo.leaveBy, nearestUserMetro);
                                                 } else {
-                                                    alert("Metro info not available yet");
+                                                    alert("Metro information not available");
                                                 }
                                             }}
+                                            title="View metro schedule and timings"
                                         >
-                                            🚇 See Metro
+                                            🚇 Metro Schedule
                                         </button>
+                                    ) : (
+                                        <div className="metro-closed">
+                                            🚇 Metro services unavailable (after 22:00 hours)
+                                        </div>
+                                    )}
 
-                                        {/* ✅ Show metro timing after button click */}
-                                        {metroTiming && (
-                                            <div className="metro-card">
-                                                <div className="metro-title">
-                                                    🚇 Upcoming Metros
-                                                </div>
+                                    {/* Bus Services */}
+                                    <button
+                                        className="travel-btn bus-btn"
+                                        onClick={() => {
+                                            if (travelInfo?.leaveBy) {
+                                                handleBus(travelInfo.leaveBy, { name: "Rajiv Nagar" });
+                                            } else {
+                                                alert("Bus schedule information not available");
+                                            }
+                                        }}
+                                        title="View bus schedule and timings"
+                                    >
+                                        🚌 Bus Schedule
+                                    </button>
+                                </div>
 
-                                                <div className="metro-times">
-                                                    {metroTiming.upcomingDepartures[0] === "No more trains today"
-                                                        ? "No more trains available today"
-                                                        : metroTiming.upcomingDepartures.map((time, index) => (
-                                                            <span key={index} className={`metro-time ${index === 0 ? "next-train" : ""}`}>
-                                                                {time}
-                                                            </span>
-                                                        ))}
-                                                </div>
-
-                                                <div className="metro-note">
-                                                    (From: {metroTiming.station})
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="metro-closed">
-                                        🚇 Metro services closed now (after 10 PM)
+                                {/* Metro Schedule Display */}
+                                {metroTiming && (
+                                    <div className="metro-card">
+                                        <div className="metro-title">
+                                            Metro Schedule
+                                            <span className="service-badge">LIVE</span>
+                                        </div>
+                                        <div className="metro-times">
+                                            {metroTiming.upcomingDepartures[0] === "No more trains today"
+                                                ? <div className="service-error">No more metro services available today</div>
+                                                : metroTiming.upcomingDepartures.map((time, index) => (
+                                                    <span key={index} className={`metro-time ${index === 0 ? "next-train" : ""}`}>
+                                                        {time}
+                                                    </span>
+                                                ))}
+                                        </div>
+                                        <div className="metro-note">
+                                            Departure Station: {metroTiming.station}
+                                        </div>
                                     </div>
                                 )}
 
-                                {/* ✅ NEW See Buses Button */}
-                                <button
-                                    className="bus-btn"
-                                    onClick={() => {
-                                        if (travelInfo?.leaveBy) {
-                                            handleBus(travelInfo.leaveBy, { name: "Rajiv Nagar" }); // ✅ Use MongoDB bus stop
-                                        } else {
-                                            alert("Bus info not available yet");
-                                        }
-                                    }}
-                                >
-                                    🚌 See Buses
-                                </button>
-
-
-                                {/* ✅ NEW Show bus timing after button click */}
+                                {/* Bus Schedule Display */}
                                 {busTiming && (
                                     <div className="bus-card">
-                                        <div className="bus-title">🚌 Upcoming Buses</div>
+                                        <div className="bus-title">
+                                            Bus Schedule
+                                            <span className="service-badge">LIVE</span>
+                                        </div>
                                         <div className="bus-times">
                                             {busTiming.upcomingDepartures[0] === "No more buses today"
-                                                ? "No more buses available today"
+                                                ? <div className="service-error">No more bus services available today</div>
                                                 : busTiming.upcomingDepartures.map((time, index) => (
                                                     <span key={index} className={`bus-time ${index === 0 ? "next-bus" : ""}`}>
                                                         {time}
                                                     </span>
                                                 ))}
                                         </div>
-                                        <div className="bus-note">(From: {busTiming.station})</div>
+                                        <div className="bus-note">
+                                            Departure Stop: {busTiming.station}
+                                        </div>
                                     </div>
                                 )}
-
                             </div>
                         </div>
                     )}
-
                     {/* Countdown */}
                     {countdown && (
                         <div className="countdown">
@@ -631,7 +663,7 @@ export default function PnrStatus() {
                                     </Popup>
                                 </Marker>
 
-                                {/* 🚇 Nearest Metros */}
+                                {/* Nearest Metros */}
                                 {nearestUserMetro && (
                                     <Marker position={nearestUserMetro.coords}>
                                         <Popup>
@@ -654,7 +686,7 @@ export default function PnrStatus() {
                                     </Marker>
                                 )}
 
-                                {/* ✅ NEW Nearest Bus Stops */}
+                                {/* Nearest Bus Stops */}
                                 {nearestUserBusStop && (
                                     <Marker position={nearestUserBusStop.coords}>
                                         <Popup>
@@ -686,8 +718,32 @@ export default function PnrStatus() {
                 </div>
             )}
 
+            {/* Error Message */}
+            {error && (
+                <div className="train-details error">
+                    <div style={{ textAlign: "center", padding: "2rem" }}>
+                        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>❌</div>
+                        <h3 style={{ color: "#ef4444", marginBottom: "0.5rem" }}>
+                            {error.includes("not found") ? "PNR Not Found" : "Error"}
+                        </h3>
+                        <p style={{ color: "#6b7280" }}>
+                            {error}
+                        </p>
+                        <p
+                            style={{
+                                color: "#6b7280",
+                                fontSize: "0.9rem",
+                                marginTop: "1rem",
+                            }}
+                        >
+                            Try PNRs: 1000000001 to 1000000010
+                        </p>
+                    </div>
+                </div>
+            )}
+
             {/* No Data */}
-            {pnr && !data && !loading && (
+            {pnr && !data && !loading && !error && (
                 <div className="train-details error">
                     <div style={{ textAlign: "center", padding: "2rem" }}>
                         <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>❌</div>
@@ -704,7 +760,7 @@ export default function PnrStatus() {
                                 marginTop: "1rem",
                             }}
                         >
-                            Try: 1234567890 (Demo PNR)
+                            Try PNRs: 1000000001 to 1000000010
                         </p>
                     </div>
                 </div>
