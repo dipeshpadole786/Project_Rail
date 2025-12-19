@@ -10,3 +10,4 @@ train_X_scaled = pd.DataFrame(
 
 print("Features scaled")
 print(train_X_scaled.shape)
+X_train = train_X_scaled

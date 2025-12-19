@@ -34,7 +34,7 @@ blocks:
   name: encode_test_categorical
   parent_id: null
   properties: {}
-  status: 1
+  status: 3
   type: 1
   variables: null
   width: 1600
@@ -82,6 +82,25 @@ blocks:
   compute_settings:
     compute_environment_type: 1
     executor_image_id: null
+  description: Balances highly imbalanced training data (26:1 ratio) using random
+    oversampling to upsample minority class and create equal class distribution
+  height: 1000
+  id: 0e870c28-0ada-4aef-bce9-6203698e21ef
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: apply_smote_balancing
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 5500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
   description: Extracts feature columns by excluding ID and target variables
   height: 1000
   id: 10db15da-3727-4e3e-81b9-bef13c29fdaa
@@ -95,6 +114,98 @@ blocks:
   width: 1600
   x: 0
   y: 1500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: ''
+  height: 1000
+  id: 114f2aaf-957d-46a6-803e-84c5bd5caf5d
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: calculate_class_weight
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 9500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: ''
+  height: 1000
+  id: 139a71b1-a4c1-4b24-b5ee-30ff73b1f9b7
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: decile_prediction_mean
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 12500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Visualizes distribution of predicted claim probabilities across test
+    dataset using histogram
+  height: 1000
+  id: 13d49d11-95a5-426a-a55d-66b022fadd29
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: claim_risk_histogram
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 6500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Encodes categorical features in test data using fitted ordinal encoder
+  height: 1000
+  id: 14a5397d-a62b-43a0-8dec-d0f1f23a8e02
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: encode_test_features
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 6500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Initializes stratified k-fold cross-validation with 5 splits for model
+    evaluation
+  height: 1000
+  id: 15849b40-3d08-474b-ae27-561fc4d18070
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: stratified_kfold_setup
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 9500
 - auto_size: false
   canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   compute_settings:
@@ -119,6 +230,25 @@ blocks:
   compute_settings:
     compute_environment_type: 1
     executor_image_id: null
+  description: Generates test predictions using the tuned Gradient Boosting model
+    and reports prediction probability range
+  height: 1000
+  id: 22b91182-1e85-4787-bf6f-87e792cb39b6
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: predict_proba_check
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 7000
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
   description: Trains final Gradient Boosting classifier on full scaled dataset
   height: 1000
   id: 25167780-3fc6-4348-b342-31609a02633e
@@ -132,6 +262,44 @@ blocks:
   width: 1600
   x: 0
   y: 7500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Validates test predictions are within valid probability range (0-1)
+    and contain no NaN or infinite values
+  height: 1000
+  id: 2cb559f0-04cb-468e-bce8-00e3f62f8553
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: validate_predictions_2
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 7500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Compares baseline model performance using Gini scores from cross-validation
+    across LR, RF, and GB models with visualization
+  height: 1000
+  id: 347be542-9884-4afb-a266-e07b393699ea
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: baseline_gini_comparison
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 7000
 - auto_size: false
   canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   compute_settings:
@@ -155,6 +323,24 @@ blocks:
   compute_settings:
     compute_environment_type: 1
     executor_image_id: null
+  description: Scales encoded test features using the training data scaler
+  height: 1000
+  id: 3e42a358-8eff-4037-a43c-97a15b58282f
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: scale_test_data
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 6500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
   description: Converts categorical features to numeric values using ordinal encoding
     with unknown value handling
   height: 1000
@@ -169,6 +355,61 @@ blocks:
   width: 1600
   x: 0
   y: 4500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Evaluates XGBoost with 5-fold stratified cross-validation, computing
+    AUC and Gini metrics
+  height: 1000
+  id: 4358662d-c75f-487e-9a27-632f208c06cf
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: cross_validate_xgb
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 10500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Applies training data scaling to test features for model consistency
+  height: 1000
+  id: 46c42548-1b7d-43d2-ad69-7a85ade62e37
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: scale_test_data_2
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 12000
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: ''
+  height: 1000
+  id: 49fbb9d4-66b8-4203-93ef-cc5364741736
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: format_predictions
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 12500
 - auto_size: false
   canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   compute_settings:
@@ -212,7 +453,45 @@ blocks:
   compute_settings:
     compute_environment_type: 1
     executor_image_id: null
-  description: Extracts target variable from training dataset for model training
+  description: Trains final XGBoost model on full scaled training dataset
+  height: 1000
+  id: 51768ddd-b413-441f-bb9a-5021e5d473dd
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: train_xgboost_model
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 11000
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Initializes XGBoost classifier with 400 estimators, balanced class
+    weights, and optimized hyperparameters for imbalanced binary classification
+  height: 1000
+  id: 58a99fe2-f49b-4d2a-a3c2-ff799e48fe21
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: xgboost_classifier_setup
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 10000
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Separates scaled features and target label for supervised learning
+    model training
   height: 1000
   id: 6563abdb-cd62-479e-9aa1-b21eff1c5148
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
@@ -267,6 +546,61 @@ blocks:
   compute_settings:
     compute_environment_type: 1
     executor_image_id: null
+  description: Creates submission CSV with test IDs and predicted probabilities
+  height: 1000
+  id: 73ab0212-e3bd-43a9-ba71-f0b7ab77b89f
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: create_submission_csv_2
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 8000
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Evaluates gradient boosting on balanced data with 3-fold cross-validation,
+    computing AUC and Gini scores
+  height: 1000
+  id: 73c2cbc5-7fd4-4bad-8b51-c19adabae156
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: gradient_boosting_cv
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 6000
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Counts submission predictions above and below 75% probability threshold
+  height: 1000
+  id: 77b24af6-6f5e-4dcc-a160-bddcff494d5e
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: count_probability_distribution_2
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 9000
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
   description: Imports GradientBoostingClassifier for model training
   height: 1000
   id: 7e235ad6-2340-4f5d-879f-b38a091819f6
@@ -280,6 +614,24 @@ blocks:
   width: 1600
   x: 0
   y: 7000
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: ''
+  height: 1000
+  id: 925f605c-f7a5-42b0-aabb-354a17b94c20
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: rank_predictions
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 12500
 - auto_size: false
   canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   compute_settings:
@@ -304,8 +656,8 @@ blocks:
   compute_settings:
     compute_environment_type: 1
     executor_image_id: null
-  description: Standardizes training and test features using StandardScaler for model
-    input
+  description: Applies StandardScaler to normalize encoded training features to zero
+    mean and unit variance for model training
   height: 1000
   id: 961883da-37a0-414b-9de9-741266901d9b
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
@@ -342,6 +694,25 @@ blocks:
   compute_settings:
     compute_environment_type: 1
     executor_image_id: null
+  description: Creates horizontal boxplot visualizing prediction probability distribution
+    across test data
+  height: 1000
+  id: 9d1b8d5a-8e7d-406c-aca5-900904124273
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: prediction_spread_boxplot
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 6500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
   description: Loads 476k-row training dataset from CSV with 52 columns (50 features
     + id + target)
   height: 1000
@@ -361,6 +732,25 @@ blocks:
   compute_settings:
     compute_environment_type: 1
     executor_image_id: null
+  description: Visualizes the distribution of target classes in training data with
+    a bar chart
+  height: 1000
+  id: a53de691-8043-4266-a6b3-39eaa42d041d
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: target_distribution_plot
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 6500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
   description: Evaluates logistic regression performance using 5-fold cross-validation,
     reporting mean AUC and Gini scores
   height: 1000
@@ -369,12 +759,161 @@ blocks:
   name: logistic_regression_cv
   parent_id: null
   properties: {}
-  status: 3
+  status: 1
   type: 1
   variables: null
   width: 1600
   x: 0
   y: 6000
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Generates predicted probabilities on test data using trained XGBoost
+    classifier
+  height: 1000
+  id: b9d2535f-9559-4529-9b50-9af352ff0df5
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: predict_probabilities
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 12500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: ''
+  height: 1000
+  id: c0022a8b-1aae-45af-9311-65fc1b46c05b
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: check_xgb_classifier
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 11500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: ''
+  height: 1000
+  id: c0ec4c54-afd2-4206-9e4b-7a8665127746
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: create_decile_ranks
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 12500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: "Analyzes submission predictions by segmenting customers into high-risk\
+    \ (\u226560% claim probability) and low-risk thresholds, reporting counts and\
+    \ risk distribution percentage."
+  height: 1000
+  id: c541eafe-cc44-4bb1-b401-47d5d98de9e0
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: count_probability_distribution
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 8500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Creates horizontal bar chart comparing Gini scores across Logistic
+    Regression, Random Forest, and Gradient Boosting models
+  height: 1000
+  id: d4abe18b-d394-4966-b569-f173a224e6b0
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: model_gini_comparison
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 6500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: ''
+  height: 1000
+  id: e66bff31-a4be-492b-ab71-bd8166575521
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: prediction_stats
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 13500
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: ''
+  height: 1000
+  id: ee01fc13-18b5-4b9c-ab3a-c91e9e98bff4
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: calculate_model_metrics
+  parent_id: null
+  properties: {}
+  status: 4
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 14000
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Trains tuned Gradient Boosting classifier with optimized hyperparameters
+    on scaled training data
+  height: 1000
+  id: f2f23110-21a6-4209-ad5d-1025e49d8c2d
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: train_gradient_boosting_2
+  parent_id: null
+  properties: {}
+  status: 1
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 6500
 - auto_size: false
   canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   compute_settings:
@@ -418,6 +957,25 @@ blocks:
   compute_settings:
     compute_environment_type: 1
     executor_image_id: null
+  description: Computes summary statistics (min, max, mean, percentiles) of test prediction
+    probabilities
+  height: 1000
+  id: fa165706-e314-4f0d-b421-57f50abac89c
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: probability_distribution_stats
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 13000
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
   description: Evaluates gradient boosting classifier using 5-fold stratified cross-validation
     on scaled training data, computing AUC and Gini scores
   height: 1000
@@ -432,6 +990,25 @@ blocks:
   width: 1600
   x: 0
   y: 7000
+- auto_size: false
+  canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  compute_settings:
+    compute_environment_type: 1
+    executor_image_id: null
+  description: Encodes categorical features in test data using pre-fitted ordinal
+    encoder
+  height: 1000
+  id: fb74ce9b-01e0-4f84-acfc-486c6144e3ff
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  name: encode_test_categorical_2
+  parent_id: null
+  properties: {}
+  status: 3
+  type: 1
+  variables: null
+  width: 1600
+  x: 2000
+  y: 11500
 - auto_size: false
   canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   compute_settings:
@@ -458,15 +1035,65 @@ edges:
   source: a530e948-9005-401b-a16d-17afa9c432ce
   target: 044bca6f-a7f0-4ddf-8613-d9e7380fbdbb
 - canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 02a6cb53-6aa5-4ff9-b542-f90a18f4e024
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 06dd582f-6691-4e31-a2d4-ecefde978519
+  target: a53de691-8043-4266-a6b3-39eaa42d041d
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 04421bcd-98b2-4e0d-a478-425356c09a2d
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 6563abdb-cd62-479e-9aa1-b21eff1c5148
+  target: 0e870c28-0ada-4aef-bce9-6203698e21ef
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 0905a3fd-c89c-4155-b056-0def74a33fae
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: fb74ce9b-01e0-4f84-acfc-486c6144e3ff
+  target: 46c42548-1b7d-43d2-ad69-7a85ade62e37
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 0d1b816c-2221-4ead-b2d9-2437a8043609
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 139a71b1-a4c1-4b24-b5ee-30ff73b1f9b7
+  target: fa165706-e314-4f0d-b421-57f50abac89c
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   id: 0f0f9c81-1566-4bdb-aa39-65ffb7bed632
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
   source: 0df33c8f-8ca9-4f7f-a493-d02e769ad5f4
   target: 971386a8-9c21-4adb-92d3-30ae91b51b37
 - canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 10763bd7-76d1-4e58-a5d6-4bc32a9daf85
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 49fbb9d4-66b8-4203-93ef-cc5364741736
+  target: 925f605c-f7a5-42b0-aabb-354a17b94c20
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   id: 10f297f5-4afb-4ba1-a14b-f0c5a11f6150
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
   source: 2055b675-4817-4d25-87a7-a3fd22c917fb
   target: 946de003-53e2-4093-8669-db4dd4ec23a6
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 13d1036e-02d5-4b61-b591-1c92b89e9ada
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 73c2cbc5-7fd4-4bad-8b51-c19adabae156
+  target: f2f23110-21a6-4209-ad5d-1025e49d8c2d
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 142a49d5-09c4-4dde-8caa-3ac5edd95a14
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 4358662d-c75f-487e-9a27-632f208c06cf
+  target: 51768ddd-b413-441f-bb9a-5021e5d473dd
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 170352a0-0cbf-4d59-99f2-9d0fc653d740
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 3e42a358-8eff-4037-a43c-97a15b58282f
+  target: 22b91182-1e85-4787-bf6f-87e792cb39b6
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 19b5571b-7619-4a52-ab62-e3e42119f6a8
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 06dd582f-6691-4e31-a2d4-ecefde978519
+  target: 9d1b8d5a-8e7d-406c-aca5-900904124273
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 1f85f5fe-5a62-4da1-8b58-7600b3d2a7c0
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: c541eafe-cc44-4bb1-b401-47d5d98de9e0
+  target: 77b24af6-6f5e-4dcc-a160-bddcff494d5e
 - canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   id: 24357fd5-356d-4673-bedb-37d07a0d33f4
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
@@ -483,10 +1110,35 @@ edges:
   source: 961883da-37a0-414b-9de9-741266901d9b
   target: 6563abdb-cd62-479e-9aa1-b21eff1c5148
 - canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 441f889d-4ce9-4462-aa3f-7b1cba3f4ae7
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 0e870c28-0ada-4aef-bce9-6203698e21ef
+  target: 73c2cbc5-7fd4-4bad-8b51-c19adabae156
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 4d8b95c9-84ee-4ed8-be96-f58880e2d547
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 6563abdb-cd62-479e-9aa1-b21eff1c5148
+  target: 15849b40-3d08-474b-ae27-561fc4d18070
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 4dd368bc-257d-4e8d-9223-7fcf464d8b8d
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: f2f23110-21a6-4209-ad5d-1025e49d8c2d
+  target: 14a5397d-a62b-43a0-8dec-d0f1f23a8e02
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 5294b204-e84c-4dd6-97f8-9ded429f1102
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 06dd582f-6691-4e31-a2d4-ecefde978519
+  target: 13d49d11-95a5-426a-a55d-66b022fadd29
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   id: 5428b9bc-e22a-4b3d-9107-d518c71f47de
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
   source: 3c2efb33-817c-4364-a9dc-4fa47a15a7de
   target: 72de9635-09ac-48c9-b7ec-85f7b8e55a21
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 5a100732-f6bf-4ed2-9e3a-a1b99aec6a66
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: e66bff31-a4be-492b-ab71-bd8166575521
+  target: ee01fc13-18b5-4b9c-ab3a-c91e9e98bff4
 - canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   id: 629d99c4-edb5-4842-85e5-12d7051ddc02
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
@@ -503,15 +1155,65 @@ edges:
   source: 6563abdb-cd62-479e-9aa1-b21eff1c5148
   target: b601b760-9bed-4b43-8cbb-8c37c0904d05
 - canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 6dc52397-7a92-4521-b23e-24623abdc3af
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 114f2aaf-957d-46a6-803e-84c5bd5caf5d
+  target: 58a99fe2-f49b-4d2a-a3c2-ff799e48fe21
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   id: 6e4aca60-7a40-469a-a40f-0f0a4b91e625
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
   source: 4a299367-ca03-4efc-9b6c-f192c44cc49d
   target: 10db15da-3727-4e3e-81b9-bef13c29fdaa
 - canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 703ec713-de9e-4ddd-b08d-1e9681783fa9
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 925f605c-f7a5-42b0-aabb-354a17b94c20
+  target: c0ec4c54-afd2-4206-9e4b-7a8665127746
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 7d5823d8-f5b8-42b0-b36a-bd613bf8bb0c
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 58a99fe2-f49b-4d2a-a3c2-ff799e48fe21
+  target: 4358662d-c75f-487e-9a27-632f208c06cf
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 831d987c-d794-428d-abf2-346339f2078a
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 2cb559f0-04cb-468e-bce8-00e3f62f8553
+  target: 73ab0212-e3bd-43a9-ba71-f0b7ab77b89f
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 8407ca71-a8e4-4362-94da-6a8c89a402ad
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 15849b40-3d08-474b-ae27-561fc4d18070
+  target: 114f2aaf-957d-46a6-803e-84c5bd5caf5d
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 84860ae3-9dd4-47c8-9fa6-71f893e8c9e9
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 73ab0212-e3bd-43a9-ba71-f0b7ab77b89f
+  target: c541eafe-cc44-4bb1-b401-47d5d98de9e0
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 865e3cbc-4e90-4bce-92c6-32eb3b88bc18
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: c0ec4c54-afd2-4206-9e4b-7a8665127746
+  target: 139a71b1-a4c1-4b24-b5ee-30ff73b1f9b7
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   id: 9451f81e-946e-4a98-81b6-65a0a3003c7a
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
   source: 7e235ad6-2340-4f5d-879f-b38a091819f6
   target: 25167780-3fc6-4348-b342-31609a02633e
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 9b919735-802f-447a-a5ae-e6e88612282f
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: b9d2535f-9559-4529-9b50-9af352ff0df5
+  target: 49fbb9d4-66b8-4203-93ef-cc5364741736
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 9b943251-86bc-44cc-ab31-8b67e2c3f749
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: fb240afc-f3cc-4a86-b0e3-a7ae432ab7b5
+  target: 347be542-9884-4afb-a266-e07b393699ea
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: 9f43540f-9c58-446b-841e-ded8fdfe208c
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 46c42548-1b7d-43d2-ad69-7a85ade62e37
+  target: c0022a8b-1aae-45af-9311-65fc1b46c05b
 - canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   id: a05bc5db-acf6-4919-9e24-ec1bb04e09f7
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
@@ -528,10 +1230,35 @@ edges:
   source: 25167780-3fc6-4348-b342-31609a02633e
   target: 0478105d-59be-47c5-abde-a7a048a2b1fb
 - canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: b163f880-cbc0-4cd2-8f05-741b62d57a5d
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 14a5397d-a62b-43a0-8dec-d0f1f23a8e02
+  target: 3e42a358-8eff-4037-a43c-97a15b58282f
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   id: b16f6d37-41dc-4b78-abfa-4d9c72d10648
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
   source: f6383581-5e61-42da-be50-1f8bfd58e0be
   target: 6aebee88-9b67-4aa2-a7f9-e4aec87aa655
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: b7c46b1b-ecd7-4449-b764-29ec44738e16
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 22b91182-1e85-4787-bf6f-87e792cb39b6
+  target: 2cb559f0-04cb-468e-bce8-00e3f62f8553
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: bfb8932f-324b-4faa-8724-2129a8417693
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: c0022a8b-1aae-45af-9311-65fc1b46c05b
+  target: b9d2535f-9559-4529-9b50-9af352ff0df5
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: cc09a52c-8ff5-4e30-bcc5-0af91e217eac
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 51768ddd-b413-441f-bb9a-5021e5d473dd
+  target: fb74ce9b-01e0-4f84-acfc-486c6144e3ff
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: cce27334-051f-4dcf-b445-20ecfb1629a4
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: 06dd582f-6691-4e31-a2d4-ecefde978519
+  target: d4abe18b-d394-4966-b569-f173a224e6b0
 - canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   id: ce85c38c-34f3-4caf-beca-71c8ad4cf2b2
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
@@ -547,6 +1274,11 @@ edges:
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
   source: 72de9635-09ac-48c9-b7ec-85f7b8e55a21
   target: 06dd582f-6691-4e31-a2d4-ecefde978519
+- canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
+  id: ee9e4e95-c32c-41ea-89c9-3b01662f1ce2
+  layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
+  source: fa165706-e314-4f0d-b421-57f50abac89c
+  target: e66bff31-a4be-492b-ab71-bd8166575521
 - canvas_id: 53c084e3-1ed8-4709-93f6-c552fcd72acc
   id: f3d7f3eb-6007-406f-a147-1fc139a86867
   layer_id: a7888a59-aff5-4781-80dc-911a498f5fc5
